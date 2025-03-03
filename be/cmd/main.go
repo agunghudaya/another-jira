@@ -1,49 +1,45 @@
 package main
 
 import (
-	"be/pkg/handlers"
-	"be/pkg/middleware"
+	"be/internal/repository"
+	"be/internal/router"
+	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/cors"
 
 	"github.com/spf13/viper"
 )
 
 func main() {
-	viper.SetConfigName("config")    // File name without extension
-	viper.SetConfigType("json")      // Config format
-	viper.AddConfigPath("./configs") // Search in ./configs directory
-	viper.AddConfigPath(".")         // (Optional) Fallback to current directory
+	// Initialize Viper
+	viper.SetConfigName("config")    // name of config file (without extension)
+	viper.SetConfigType("json")      // or viper.SetConfigType("YAML")
+	viper.AddConfigPath("./configs") // optionally look for config in the configs directory
+	viper.AddConfigPath(".")         // optionally look for config in the working directory
+	viper.AutomaticEnv()             // read in environment variables that match
+
+	// Set default values
+	viper.SetDefault("fe.url", "http://localhost:3000")
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %v", err)
+		log.Printf("Error reading config file, %s", err)
 	}
 
-	feUrl := viper.GetString("fe.url")
+	// Initialize database
+	db, err := repository.InitDB()
+	if err != nil {
+		log.Fatalf("Error initializing database: %s", err)
+	}
+	defer db.Close()
 
-	r := chi.NewRouter()
+	// Initialize router
+	r := router.InitRouter()
 
-	// Add CORS middleware
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{feUrl}, // Allow your frontend URL
-		AllowedMethods:   []string{"GET", "POST"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
-	}))
-
-	// Add middleware
-	r.Use(middleware.AuthMiddleware)
-
-	r.Get("/", handlers.HandleRequest)
-
-	log.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	// Start server
+	port := viper.GetString("server.port")
+	log.Printf("Starting server on :%s", port)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), r); err != nil {
 		log.Fatalf("Could not start server: %s\n", err)
 	}
 }
