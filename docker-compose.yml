@@ -1,5 +1,3 @@
-version: '3.8'
-
 services: 
   postgres:
     image: postgres:14
@@ -13,23 +11,26 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "youruser"]
+      test: ["CMD", "pg_isready", "-U", "youruser", "-d", "another-jira-tool"]
       interval: 5s
       retries: 5
       start_period: 10s
 
   migrate:
-    image: migrate/migrate
+    image: migrate/migrate:v4.16.2
+    container_name: jira-migrate
     volumes:
-      - ${PWD}/be/migrations:/migrations
-    command: [
-      "-path", "/migrations",
-      "-database", "postgres://youruser:yourpassword@postgres:5432/another-jira-tool?sslmode=disable",
-      "up"
-    ]
+      - ./be/migrations:/migrations  # Mount the migrations folder
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+    entrypoint: [ "/migrate" ]
+    command:
+      [
+        "-verbose",
+        "-path=/migrations",
+        "-database=postgres://youruser:yourpassword@postgres:5432/another-jira-tool?sslmode=disable",
+        "up"
+      ]
 
   backend:
     build:
