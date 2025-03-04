@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . ./
 
-RUN go build -o /another-jira-be ./cmd
+RUN go build -o /another-jira-be ./cmd/api
 
 EXPOSE 8080
 
