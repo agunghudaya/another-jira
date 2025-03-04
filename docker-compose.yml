@@ -1,6 +1,37 @@
-version: '3.8'
+services: 
+  postgres:
+    image: postgres:14
+    container_name: jira-db
+    environment:
+      - POSTGRES_USER=youruser
+      - POSTGRES_PASSWORD=yourpassword
+      - POSTGRES_DB=another-jira-tool
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "youruser", "-d", "another-jira-tool"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
 
-services:
+  migrate:
+    image: migrate/migrate:v4.16.2
+    container_name: jira-migrate
+    volumes:
+      - ./be/migrations:/migrations  # Mount the migrations folder
+    depends_on:
+      - postgres
+    entrypoint: [ "/migrate" ]
+    command:
+      [
+        "-verbose",
+        "-path=/migrations",
+        "-database=postgres://youruser:yourpassword@postgres:5432/another-jira-tool?sslmode=disable",
+        "up"
+      ]
+
   backend:
     build:
       context: ./be
@@ -13,8 +44,11 @@ services:
       - GO_ENV=development
       - POSTGRES_USER=youruser
       - POSTGRES_PASSWORD=yourpassword
-      - POSTGRES_DB=yourdb
+      - POSTGRES_DB=another-jira-tool
       - POSTGRES_HOST=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   frontend:
     build:
@@ -26,17 +60,6 @@ services:
       - ./fe:/app
     environment:
       - NODE_ENV=development
-
-  postgres:
-    image: postgres:14
-    environment:
-      - POSTGRES_USER=youruser
-      - POSTGRES_PASSWORD=yourpassword
-      - POSTGRES_DB=yourdb
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
 
 volumes:
   postgres-data:
