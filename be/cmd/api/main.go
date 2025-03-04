@@ -12,11 +12,11 @@ import (
 
 func main() {
 	// Initialize Viper
-	viper.SetConfigName("config")    // name of config file (without extension)
-	viper.SetConfigType("json")      // or viper.SetConfigType("YAML")
-	viper.AddConfigPath("./configs") // optionally look for config in the configs directory
-	viper.AddConfigPath(".")         // optionally look for config in the working directory
-	viper.AutomaticEnv()             // read in environment variables that match
+	viper.SetConfigName("config")             // name of config file (without extension)
+	viper.SetConfigType("json")               // or viper.SetConfigType("YAML")
+	viper.AddConfigPath("./internal/configs") // optionally look for config in the configs directory
+	viper.AddConfigPath(".")                  // optionally look for config in the working directory
+	viper.AutomaticEnv()                      // read in environment variables that match
 
 	// Set default values
 	viper.SetDefault("fe.url", "http://localhost:3000")
