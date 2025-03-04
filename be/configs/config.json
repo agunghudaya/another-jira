@@ -1,0 +1,15 @@
+{
+  "server": {
+    "port": 8080
+  },
+  "fe": {
+    "url": "http://localhost:3000"
+  },
+  "database": {
+    "host": "postgres",
+    "port": 5432,
+    "user": "youruser",
+    "password": "yourpassword",
+    "dbname": "another-jira-tool"
+  }
+}
