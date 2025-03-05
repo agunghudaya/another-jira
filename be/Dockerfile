@@ -1,15 +1,32 @@
-FROM golang:1.20-alpine
+# Use Go as the builder
+FROM golang:1.21 AS builder
 
 WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
+# Copy go.mod and go.sum and download dependencies
+COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . ./
+# Copy the entire source code
+COPY . .
 
-RUN go build -o /another-jira-be ./cmd/api
+# Build the binaries
+RUN go build -o /app/http-api ./cmd/http/main.go
+RUN go build -o /app/cron-worker ./cmd/worker/main.go
 
-EXPOSE 8080
+# Use a minimal runtime image
+FROM debian:bookworm-slim
 
-CMD [ "/another-jira-be" ]
+WORKDIR /app
+
+# Copy compiled binaries
+COPY --from=builder /app/http-api /app/cron-worker /app/
+
+# Copy config files to /app/internal/configs
+COPY internal/configs /app/internal/configs
+
+# Ensure executables have correct permissions
+RUN chmod +x /app/http-api /app/cron-worker
+
+# Default command (overridden in docker-compose)
+CMD ["/app/http-api"]

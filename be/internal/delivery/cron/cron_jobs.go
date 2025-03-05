@@ -9,7 +9,7 @@ import (
 
 func RegisterJobs(c *cron.Cron, jiraUC *usecase.JiraUsecase) {
 
-	_, err := c.AddFunc("@every 1m", func() { jiraUC.SyncJiraData() })
+	_, err := c.AddFunc("0 10-12 * * * *", func() { jiraUC.SyncJiraData() })
 	if err != nil {
 		log.Fatalf("Error registering cron job: %v", err)
 	}
