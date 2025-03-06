@@ -11,5 +11,10 @@
     "user": "youruser",
     "password": "yourpassword",
     "dbname": "another-jira-tool"
+  },
+  "jira": {
+      "baseurl": "https://yourdomain.atlassian.net",
+      "searchurl": "/rest/api/2/search",
+      "detailurl": "/rest/api/3/issue"
   }
 }

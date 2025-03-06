@@ -6,7 +6,7 @@ import (
 )
 
 type SyncRepository interface {
-	FetchPendingSync() (*domain.SyncHistory, error)
+	FetchPendingSync(jiraID string) (*domain.SyncHistory, error)
 	FetchUserList() ([]domain.User, error)
 	MarkSyncAsCompleted(syncID int, success bool, recordsSynced int, errMessage *string) error
 }
@@ -19,18 +19,19 @@ func NewSyncRepository(db *sql.DB) SyncRepository {
 	return &syncRepository{db: db}
 }
 
-func (r *syncRepository) FetchPendingSync() (*domain.SyncHistory, error) {
+func (r *syncRepository) FetchPendingSync(jiraID string) (*domain.SyncHistory, error) {
 	query := `
 		SELECT id, jira_id, sync_date, started_at, finished_at, status, 
 		       error_message, records_synced, total_expected_records, sync_attempt, created_at
 		FROM jira_user_sync_history 
-		WHERE status = 'in_progress' 
-		ORDER BY started_at DESC 
-		LIMIT 1;
+		WHERE 
+			jira_id = $1 
+			AND sync_date = now()
+		ORDER BY started_at DESC ;
 	`
 
 	var sync domain.SyncHistory
-	err := r.db.QueryRow(query).Scan(
+	err := r.db.QueryRow(query, jiraID).Scan(
 		&sync.ID, &sync.JiraID, &sync.SyncDate, &sync.StartedAt, &sync.FinishedAt,
 		&sync.Status, &sync.ErrorMessage, &sync.RecordsSynced, &sync.TotalExpectedRecords,
 		&sync.SyncAttempt, &sync.CreatedAt,
