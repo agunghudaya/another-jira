@@ -11,6 +11,13 @@ type JiraItem struct {
 	Status string
 }
 
+type User struct {
+	ID         int
+	Username   string
+	JiraUserID string
+	Status     string
+}
+
 type SyncHistory struct {
 	ID                   int
 	JiraID               string

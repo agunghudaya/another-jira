@@ -2,30 +2,36 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"be/internal/delivery/cron"
+	"be/internal/infrastructure/config"
+	"be/internal/infrastructure/db"
 	"be/internal/repository"
 	"be/internal/usecase"
-
-	"github.com/spf13/viper"
 )
 
 func main() {
-	// Initialize Viper
-	viper.SetConfigName("config")    // name of config file (without extension)
-	viper.SetConfigType("json")      // or viper.SetConfigType("YAML")
-	viper.AddConfigPath("./configs") // optionally look for config in the configs directory
-	viper.AddConfigPath(".")         // optionally look for config in the working directory
-	viper.AutomaticEnv()             // read in environment variables that match
+	// Load configuration from infrastructure
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
 
 	c := cron.New()
 
-	// Initialize dependencies
-	jiraRepo := repository.NewJiraRepository()      // Database/API connection
-	jiraUsecase := usecase.NewJiraUsecase(jiraRepo) // Business logic
+	// Initialize database
+	db, err := db.InitDB(cfg)
+	if err != nil {
+		log.Fatalf("Error initializing database: %s", err)
+	}
+	defer db.Close()
 
-	// Register cron jobs
-	cron.RegisterJobs(c, jiraUsecase)
+	// Initialize dependencies
+	syncRepo := repository.NewSyncRepository(db)     // Database/API connection
+	jiraSync := usecase.NewJiraSyncUsecase(syncRepo) // Business logic
+
+	cron.RegisterJobs(c, jiraSync)
 
 	fmt.Println("Starting Cron Jobs...")
 	c.Start()

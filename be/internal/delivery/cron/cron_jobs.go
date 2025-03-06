@@ -7,9 +7,9 @@ import (
 	cron "github.com/robfig/cron/v3"
 )
 
-func RegisterJobs(c *cron.Cron, jiraUC *usecase.JiraUsecase) {
+func RegisterJobs(c *cron.Cron, jiraSyncUC usecase.JiraSync) {
 
-	_, err := c.AddFunc("0 10-12 * * * *", func() { jiraUC.SyncJiraData() })
+	_, err := c.AddFunc("0 */3 * * * *", func() { jiraSyncUC.ProcessSync() })
 	if err != nil {
 		log.Fatalf("Error registering cron job: %v", err)
 	}

@@ -1,7 +1,9 @@
 package main
 
 import (
-	"be/internal/repository"
+	config "be/internal/infrastructure/config"
+	db "be/internal/infrastructure/db"
+
 	"be/internal/router"
 	"fmt"
 	"log"
@@ -11,23 +13,14 @@ import (
 )
 
 func main() {
-	// Initialize Viper
-	viper.SetConfigName("config")             // name of config file (without extension)
-	viper.SetConfigType("json")               // or viper.SetConfigType("YAML")
-	viper.AddConfigPath("./internal/configs") // optionally look for config in the configs directory
-	viper.AddConfigPath(".")                  // optionally look for config in the working directory
-	viper.AutomaticEnv()                      // read in environment variables that match
 
-	// Set default values
-	viper.SetDefault("fe.url", "http://localhost:3000")
-
-	// Read the config file
-	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("Error reading config file, %s", err)
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
 	}
 
 	// Initialize database
-	db, err := repository.InitDB()
+	db, err := db.InitDB(cfg)
 	if err != nil {
 		log.Fatalf("Error initializing database: %s", err)
 	}

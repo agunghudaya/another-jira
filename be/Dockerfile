@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=builder /app/http-api /app/cron-worker /app/
 
 # Copy config files to /app/internal/configs
-COPY internal/configs /app/internal/configs
+COPY internal/infrastructure/config /app/internal/infrastructure/config
 
 # Ensure executables have correct permissions
 RUN chmod +x /app/http-api /app/cron-worker

@@ -4,44 +4,35 @@ package usecase
 import (
 	"be/internal/repository"
 	"log"
-	"time"
 )
 
-type SyncService interface {
+type JiraSync interface {
 	ProcessSync() error
 }
 
-type syncService struct {
+type jiraSync struct {
 	syncRepo repository.SyncRepository
 }
 
-func NewSyncService(syncRepo repository.SyncRepository) SyncService {
-	return &syncService{syncRepo: syncRepo}
+func NewJiraSyncUsecase(syncRepo repository.SyncRepository) JiraSync {
+	return &jiraSync{syncRepo: syncRepo}
 }
 
-func (s *syncService) ProcessSync() error {
+func (s *jiraSync) ProcessSync() error {
 	// Fetch pending sync
-	sync, err := s.syncRepo.FetchPendingSync()
+	users, err := s.syncRepo.FetchUserList()
 	if err != nil {
 		return err
 	}
 
-	if sync == nil {
-		log.Println("No pending sync found.")
+	if err != nil || len(users) == 0 {
+		log.Println("No user found. Err:", err)
 		return nil
 	}
 
-	log.Printf("Processing sync for Jira ID: %s\n", sync.JiraID)
-
-	// Simulate data fetching
-	time.Sleep(3 * time.Second) // Replace with actual Jira API calls
-
-	// Simulate success
-	err = s.syncRepo.MarkSyncAsCompleted(sync.ID, true, 50, nil)
-	if err != nil {
-		log.Fatalf("Failed to update sync status: %v", err)
+	for _, user := range users {
+		log.Println(user.JiraUserID)
 	}
 
-	log.Println("Sync completed successfully.")
 	return nil
 }
