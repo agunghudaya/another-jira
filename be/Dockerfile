@@ -1,5 +1,5 @@
-# Use Go as the builder
-FROM golang:1.21 AS builder
+
+FROM golang:1.22.2 AS builder
 
 WORKDIR /app
 
@@ -14,15 +14,14 @@ COPY . .
 RUN go build -o /app/http-api ./cmd/http/main.go
 RUN go build -o /app/cron-worker ./cmd/worker/main.go
 
-# Use a minimal runtime image
-FROM debian:bookworm-slim
+FROM golang:1.22.2 AS runtime
 
 WORKDIR /app
 
 # Copy compiled binaries
 COPY --from=builder /app/http-api /app/cron-worker /app/
 
-# Copy config files to /app/internal/configs
+# Copy config files
 COPY internal/infrastructure/config /app/internal/infrastructure/config
 
 # Ensure executables have correct permissions

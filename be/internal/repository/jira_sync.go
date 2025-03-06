@@ -2,21 +2,30 @@ package repository
 
 import (
 	"be/internal/domain"
+	"be/internal/infrastructure/config"
 	"database/sql"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"net/url"
 )
 
 type SyncRepository interface {
 	FetchPendingSync(jiraID string) (*domain.SyncHistory, error)
 	FetchUserList() ([]domain.User, error)
 	MarkSyncAsCompleted(syncID int, success bool, recordsSynced int, errMessage *string) error
+	FetchJiraTasksWithFilter(jiraUserID string, cfg *config.Config) (domain.JiraResponse, error)
 }
 
 type syncRepository struct {
-	db *sql.DB
+	cfg *config.Config
+	db  *sql.DB
 }
 
-func NewSyncRepository(db *sql.DB) SyncRepository {
-	return &syncRepository{db: db}
+func NewSyncRepository(cfg *config.Config, db *sql.DB) SyncRepository {
+	return &syncRepository{cfg: cfg, db: db}
 }
 
 func (r *syncRepository) FetchPendingSync(jiraID string) (*domain.SyncHistory, error) {
@@ -87,4 +96,63 @@ func (r *syncRepository) MarkSyncAsCompleted(syncID int, success bool, recordsSy
 	`
 	_, err := r.db.Exec(query, status, recordsSynced, errMessage, syncID)
 	return err
+}
+
+func (r *syncRepository) FetchJiraTasksWithFilter(jiraUserID string, cfg *config.Config) (domain.JiraResponse, error) {
+
+	jiraData := domain.JiraResponse{}
+	startAt := 0
+
+	jql := fmt.Sprintf(`
+	assignee = %s 
+	and status not in (CANCELLED, OPEN) 
+	and issuetype != Epic 
+	and (created >= "2024-07-01" or resolved >= "2024-07-01") 
+	order by status DESC, created DESC`, jiraUserID)
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			//TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // 🚨 For debugging only!
+		},
+	}
+
+	//client := &http.Client{}
+	reqURL := fmt.Sprintf("%s%s?jql=%s&&maxResults=50&startAt=%d", r.cfg.GetString("jira.baseurl"), r.cfg.GetString("jira.searchurl"), url.QueryEscape(jql), startAt)
+
+	fmt.Println(reqURL)
+
+	req, err := http.NewRequest("GET", reqURL, nil)
+	if err != nil {
+		return jiraData, err
+	}
+
+	log.Println(r.cfg.GetString("JIRA_USERNAME"), r.cfg.GetString("JIRA_TOKEN"))
+
+	req.SetBasicAuth(r.cfg.GetString("JIRA_USERNAME"), r.cfg.GetString("JIRA_TOKEN"))
+	req.Header.Add("Accept", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("oOOOOOooooojjj nooooo")
+		return jiraData, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("Response:", resp.Status, string(body))
+
+	if resp.StatusCode != http.StatusOK {
+		return jiraData, fmt.Errorf("failed to fetch data: %s", resp.Status)
+	}
+
+	var tmpJiraData *domain.JiraResponse
+
+	err = json.NewDecoder(resp.Body).Decode(&tmpJiraData)
+	if err != nil {
+		return jiraData, err
+	}
+
+	jiraData.Issues = append(jiraData.Issues, tmpJiraData.Issues...)
+
+	return jiraData, nil
 }

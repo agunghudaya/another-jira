@@ -39,10 +39,10 @@ func NewConfig() (*Config, error) {
 	}
 
 	// Print all configuration values for debugging
-	log.Println("Loaded Configuration:")
-	for _, key := range v.AllKeys() {
-		log.Printf("%s: %v", key, v.Get(key))
-	}
+	// log.Println("Loaded Configuration:")
+	// for _, key := range v.AllKeys() {
+	// 	log.Printf("%s: %v", key, v.Get(key))
+	// }
 
 	return &Config{v: v}, nil
 }

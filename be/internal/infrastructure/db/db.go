@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"be/internal/infrastructure/config"
 
@@ -16,8 +15,6 @@ func InitDB(cfg *config.Config) (*sql.DB, error) {
 	dbUser := cfg.GetString("database.user")
 	dbPassword := cfg.GetString("database.password")
 	dbName := cfg.GetString("database.dbname")
-
-	log.Printf(dbHost, dbHost, dbUser, dbPassword, dbName)
 
 	// Create database connection string
 	dbConnStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
