@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/viper"
 )
@@ -13,15 +14,34 @@ type Config struct {
 // NewConfig initializes and returns a new Viper configuration instance
 func NewConfig() (*Config, error) {
 	v := viper.New()
-	v.SetConfigName("config") // config.json or config.yaml
-	v.SetConfigType("json")   // Change to "yaml" if using YAML
+
+	// Set defaults
+	v.SetDefault("fe.url", "http://localhost:3000")
+
+	// Load environment variables from .env file
+	v.SetConfigFile(".env")
+	v.AddConfigPath("/app")
+	if err := v.ReadInConfig(); err != nil {
+		log.Println("No .env file found, relying on system environment variables")
+	}
+
+	// Enable automatic environment variable binding (e.g., DB_HOST, DB_PORT)
+	v.AutomaticEnv()
+
+	// Load JSON config
+	v.SetConfigName("config")
+	v.SetConfigType("json")
 	v.AddConfigPath("./internal/infrastructure/config")
 
-	viper.SetDefault("fe.url", "http://localhost:3000")
-
 	// Read configuration file
-	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("failed to read config: %w", err)
+	if err := v.MergeInConfig(); err != nil {
+		return nil, fmt.Errorf("failed to read config.json: %w", err)
+	}
+
+	// Print all configuration values for debugging
+	log.Println("Loaded Configuration:")
+	for _, key := range v.AllKeys() {
+		log.Printf("%s: %v", key, v.Get(key))
 	}
 
 	return &Config{v: v}, nil

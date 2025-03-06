@@ -28,3 +28,6 @@ build/
 
 #configs
 ##configs/config.json
+
+#env
+#.env

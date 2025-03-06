@@ -37,6 +37,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - GO_ENV=development
+    volumes:
+      - ./be/.env:/app/.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,6 +50,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - GO_ENV=development
+    volumes:
+      - ./be/.env:/app/.env
     depends_on:
       postgres:
         condition: service_healthy
