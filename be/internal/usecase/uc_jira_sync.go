@@ -5,7 +5,9 @@ import (
 	"be/internal/domain"
 	"be/internal/infrastructure/config"
 	"be/internal/repository"
+	"database/sql"
 	"log"
+	"time"
 )
 
 type JiraSync interface {
@@ -15,11 +17,12 @@ type JiraSync interface {
 
 type jiraSync struct {
 	cfg      *config.Config
+	db       *sql.DB
 	syncRepo repository.SyncRepository
 }
 
-func NewJiraSyncUsecase(cfg *config.Config, syncRepo repository.SyncRepository) JiraSync {
-	return &jiraSync{cfg: cfg, syncRepo: syncRepo}
+func NewJiraSyncUsecase(cfg *config.Config, db *sql.DB, syncRepo repository.SyncRepository) JiraSync {
+	return &jiraSync{cfg: cfg, db: db, syncRepo: syncRepo}
 }
 
 func (s *jiraSync) ProcessSync() error {
@@ -44,7 +47,8 @@ func (s *jiraSync) ProcessSync() error {
 
 func (s *jiraSync) JiraUserSync(user *domain.User) error {
 
-	log.Println(user.JiraUserID)
+	startedAt := time.Now()
+	log.Printf("sync user_id\t:%s", user.JiraUserID)
 	syncHistory, err := s.syncRepo.FetchPendingSync(user.JiraUserID)
 
 	if err != nil {
@@ -61,10 +65,11 @@ func (s *jiraSync) JiraUserSync(user *domain.User) error {
 
 	if err != nil {
 		log.Println("FetchJiraTasksWithFilter fail with err:", err)
+		s.syncRepo.InsertSyncHistory(s.db, user.JiraUserID, "fail", len(jiraResponse.Issues), jiraResponse.Total, err.Error(), startedAt)
 		return err
 	}
 
-	log.Println(jiraResponse)
+	s.syncRepo.InsertSyncHistory(s.db, user.JiraUserID, "success", len(jiraResponse.Issues), jiraResponse.Total, "", startedAt)
 
 	return nil
 }
