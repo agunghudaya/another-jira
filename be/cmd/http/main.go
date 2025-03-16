@@ -3,16 +3,17 @@ package main
 import (
 	config "be/internal/infrastructure/config"
 	db "be/internal/infrastructure/db"
-
-	"be/internal/router"
-	"fmt"
-	"log"
-	"net/http"
+	server "be/internal/infrastructure/http_server"
+	logger "be/internal/infrastructure/logger"
 
 	"github.com/spf13/viper"
 )
 
 func main() {
+
+	// Initialize logger
+	log := logger.InitLogger()
+	log.Info("Starting server...")
 
 	cfg, err := config.NewConfig()
 	if err != nil {
@@ -26,13 +27,12 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialize router
-	r := router.InitRouter()
+	// Create Gin Router
+	r := server.InitServer()
 
 	// Start server
 	port := viper.GetString("server.port")
-	log.Printf("Starting server on :%s", port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), r); err != nil {
-		log.Fatalf("Could not start server: %s\n", err)
+	if err := r.Run(port); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }

@@ -2,9 +2,21 @@ package handlers
 
 import (
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-// HandleRequest is an example handler function
-func HandleRequest(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello, World!"))
+// GetUserHandler handles GET /users/:id
+func GetUserHandler(c *gin.Context) {
+	userID := c.Param("id")
+	c.JSON(http.StatusOK, gin.H{"message": "User found", "id": userID})
+}
+
+// CreateUserHandler handles POST /users
+func CreateUserHandler(c *gin.Context) {
+	c.JSON(http.StatusCreated, gin.H{"message": "User created"})
+}
+
+func GetHealthHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "OK"})
 }
