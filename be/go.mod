@@ -4,9 +4,12 @@ go 1.20
 
 require github.com/go-chi/chi/v5 v5.0.7
 
+require github.com/robfig/cron/v3 v3.0.1 // indirect
+
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-chi/cors v1.2.1 // indirect
+	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/lib/pq v1.10.9
 	github.com/magiconair/properties v1.8.7 // indirect

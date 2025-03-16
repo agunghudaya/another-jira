@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS jira_user_sync_history;

@@ -8,7 +8,7 @@ function App() {
   const [data, setData] = useState('');
 
   useEffect(() => {
-    axios.get(`${config.backendUrl}/`)
+    axios.get(`${config.backendUrl}/api/health`)
       .then(response => setData(response.data))
       .catch(error => console.error('Error fetching data:', error));
   }, []);

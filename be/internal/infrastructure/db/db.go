@@ -1,23 +1,20 @@
-package repository
+package db
 
 import (
 	"database/sql"
 	"fmt"
-	"log"
+
+	"be/internal/infrastructure/config"
 
 	_ "github.com/lib/pq"
-	"github.com/spf13/viper"
 )
 
-func InitDB() (*sql.DB, error) {
-	// Get database configuration from Viper
-	dbHost := viper.GetString("database.host")
-	dbPort := viper.GetInt("database.port")
-	dbUser := viper.GetString("database.user")
-	dbPassword := viper.GetString("database.password")
-	dbName := viper.GetString("database.dbname")
-
-	log.Printf(dbHost, dbHost, dbUser, dbPassword, dbName)
+func InitDB(cfg *config.Config) (*sql.DB, error) {
+	dbHost := cfg.GetString("database.host")
+	dbPort := cfg.GetInt("database.port")
+	dbUser := cfg.GetString("database.user")
+	dbPassword := cfg.GetString("database.password")
+	dbName := cfg.GetString("database.dbname")
 
 	// Create database connection string
 	dbConnStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",

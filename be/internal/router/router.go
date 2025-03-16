@@ -1,8 +1,8 @@
 package router
 
 import (
-	"be/internal/handlers"
-	"be/internal/middleware"
+	httpDelivery "be/internal/delivery/http"
+	middleware "be/internal/middleware/auth"
 	"log"
 
 	"github.com/go-chi/chi/v5"
@@ -33,7 +33,7 @@ func InitRouter() *chi.Mux {
 	r.Use(middleware.AuthMiddleware)
 
 	// Define routes
-	r.Get("/", handlers.HandleRequest)
+	r.Get("/api/health", httpDelivery.HandleRequest)
 
 	return r
 }

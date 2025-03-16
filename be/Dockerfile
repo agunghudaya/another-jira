@@ -1,15 +1,31 @@
-FROM golang:1.20-alpine
+
+FROM golang:1.22.2 AS builder
 
 WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
+# Copy go.mod and go.sum and download dependencies
+COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . ./
+# Copy the entire source code
+COPY . .
 
-RUN go build -o /another-jira-be ./cmd
+# Build the binaries
+RUN go build -o /app/http-api ./cmd/http/main.go
+RUN go build -o /app/cron-worker ./cmd/worker/main.go
 
-EXPOSE 8080
+FROM golang:1.22.2 AS runtime
 
-CMD [ "/another-jira-be" ]
+WORKDIR /app
+
+# Copy compiled binaries
+COPY --from=builder /app/http-api /app/cron-worker /app/
+
+# Copy config files
+COPY internal/infrastructure/config /app/internal/infrastructure/config
+
+# Ensure executables have correct permissions
+RUN chmod +x /app/http-api /app/cron-worker
+
+# Default command (overridden in docker-compose)
+CMD ["/app/http-api"]

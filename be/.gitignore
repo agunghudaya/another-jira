@@ -27,4 +27,7 @@ bin/
 build/
 
 #configs
-configs/config.json
+##configs/config.json
+
+#env
+.env

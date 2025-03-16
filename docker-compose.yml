@@ -15,7 +15,6 @@ services:
       interval: 5s
       retries: 5
       start_period: 10s
-
   migrate:
     image: migrate/migrate:v4.16.2
     container_name: jira-migrate
@@ -32,23 +31,31 @@ services:
         "up"
       ]
 
-  backend:
+  http-api:
     build:
       context: ./be
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./be:/app
     environment:
       - GO_ENV=development
-      - POSTGRES_USER=youruser
-      - POSTGRES_PASSWORD=yourpassword
-      - POSTGRES_DB=another-jira-tool
-      - POSTGRES_HOST=postgres
+    volumes:
+      - ./be/.env:/app/.env
     depends_on:
       postgres:
         condition: service_healthy
+    command: ["/app/http-api"]
+
+  worker:
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    environment:
+      - GO_ENV=development
+    volumes:
+      - ./be/.env:/app/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["/app/cron-worker"]  # Runs the worker binary
 
   frontend:
     build:
