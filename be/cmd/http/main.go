@@ -5,8 +5,6 @@ import (
 	db "be/internal/infrastructure/db"
 	server "be/internal/infrastructure/http_server"
 	logger "be/internal/infrastructure/logger"
-
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -31,8 +29,11 @@ func main() {
 	r := server.InitServer()
 
 	// Start server
-	port := viper.GetString("server.port")
-	if err := r.Run(port); err != nil {
+	port := cfg.GetString("server.port")
+	address := ":" + port // Ensure correct format ":8080"
+
+	log.Infof("Server is running on %s", address)
+	if err := r.Run(address); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
