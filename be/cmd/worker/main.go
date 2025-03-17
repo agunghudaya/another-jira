@@ -28,8 +28,8 @@ func main() {
 	defer db.Close()
 
 	// Initialize dependencies
-	syncRepo := repository.NewSyncRepository(cfg, db)         // Database/API connection
-	jiraSync := usecase.NewJiraSyncUsecase(cfg, db, syncRepo) // Business logic
+	syncRepo := repository.NewSyncRepository(cfg, db)
+	jiraSync := usecase.NewJiraSyncUsecase(cfg, db, syncRepo)
 
 	cron.RegisterJobs(c, jiraSync)
 

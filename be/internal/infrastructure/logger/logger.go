@@ -15,7 +15,10 @@ func InitLogger() *logrus.Logger {
 	logger.SetOutput(os.Stdout)
 
 	// Set log format (JSON or Text)
-	logger.SetFormatter(&logrus.JSONFormatter{}) // Use JSON for structured logging
+	logger.SetFormatter(&logrus.TextFormatter{ // Enable colored output
+		FullTimestamp: true,
+		ForceColors:   true, // Ensure colors are enabled
+	})
 
 	// Set log level (INFO by default)
 	logger.SetLevel(logrus.InfoLevel)

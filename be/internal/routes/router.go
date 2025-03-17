@@ -1,30 +1,35 @@
 package routes
 
 import (
-	handlers "be/internal/delivery/http"
+	delivery "be/internal/delivery/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterRoutes sets up API routes
-func RegisterRoutes(r *gin.Engine) {
+// HandlerRegistry holds all route handlers
+type HandlerRegistry struct {
+	HealthHandler *delivery.HealthHandler
+}
+
+// RegisterRoutes registers all routes using the handler registry
+func RegisterRoutes(r *gin.Engine, hr *HandlerRegistry) {
 	api := r.Group("/api")
 	{
-		userRoutes(api)
-		healthRoutes(api)
-	}
-}
+		api.GET("/health", hr.HealthHandler.HealthCheck)
 
-// userRoutes defines user-related routes
-func userRoutes(r *gin.RouterGroup) {
-	users := r.Group("/users")
-	{
-		users.GET("/:id", handlers.GetUserHandler)
-		users.POST("/", handlers.CreateUserHandler)
-	}
-}
+		// userRoutes := api.Group("/users")
+		// {
+		// 	userRoutes.GET("/:id", hr.UserHandler.GetUser)
+		// }
 
-// healthRoutes defines health check routes
-func healthRoutes(r *gin.RouterGroup) {
-	r.GET("/health", handlers.GetHealthHandler)
+		// orderRoutes := api.Group("/orders")
+		// {
+		// 	orderRoutes.GET("/:id", hr.OrderHandler.GetOrder)
+		// }
+
+		// productRoutes := api.Group("/products")
+		// {
+		// 	productRoutes.GET("/:id", hr.ProductHandler.GetProduct)
+		// }
+	}
 }
