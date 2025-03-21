@@ -34,7 +34,7 @@ func NewJiraSyncUsecase(cfg *config.Config, log *logrus.Logger, syncRepo reposit
 }
 
 func (s *jiraSync) ProcessSync(ctx context.Context) error {
-	// Fetch pending sync
+
 	users, err := s.syncRepo.FetchUserList(ctx)
 	if err != nil {
 		log.Println("FetchUserList fail with err:", err)
@@ -57,7 +57,7 @@ func (s *jiraSync) JiraUserSync(ctx context.Context, user *domain.User) error {
 
 	startedAt := time.Now()
 	log.Printf("sync user_id\t:%s", user.JiraUserID)
-	syncHistory, err := s.syncRepo.FetchPendingSync(user.JiraUserID)
+	syncHistory, err := s.syncRepo.FetchPendingSync(ctx, user.JiraUserID)
 
 	if err != nil {
 		log.Println("FetchUserList fail with err:", err)
@@ -69,15 +69,15 @@ func (s *jiraSync) JiraUserSync(ctx context.Context, user *domain.User) error {
 		return nil
 	}
 
-	jiraResponse, err := s.syncRepo.FetchJiraTasksWithFilter(user.JiraUserID, s.cfg)
+	jiraResponse, err := s.syncRepo.FetchJiraTasksWithFilter(ctx, user.JiraUserID, s.cfg)
 
 	if err != nil {
 		log.Println("FetchJiraTasksWithFilter fail with err:", err)
-		s.syncRepo.InsertSyncHistory(user.JiraUserID, "fail", len(jiraResponse.Issues), jiraResponse.Total, err.Error(), startedAt)
+		s.syncRepo.InsertSyncHistory(ctx, user.JiraUserID, "fail", len(jiraResponse.Issues), jiraResponse.Total, err.Error(), startedAt)
 		return err
 	}
 
-	s.syncRepo.InsertSyncHistory(user.JiraUserID, "success", len(jiraResponse.Issues), jiraResponse.Total, "", startedAt)
+	s.syncRepo.InsertSyncHistory(ctx, user.JiraUserID, "success", len(jiraResponse.Issues), jiraResponse.Total, "", startedAt)
 
 	return nil
 }
