@@ -1,18 +1,26 @@
 package main
 
 import (
+	delivery "be/internal/delivery/http"
 	config "be/internal/infrastructure/config"
 	db "be/internal/infrastructure/db"
-
-	"be/internal/router"
-	"fmt"
-	"log"
-	"net/http"
-
-	"github.com/spf13/viper"
+	server "be/internal/infrastructure/http_server"
+	logger "be/internal/infrastructure/logger"
+	routes "be/internal/routes"
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
+
+	// Initialize logger
+	log := logger.InitLogger()
+	log.Info("Starting server...")
+
+	// Create base context
+	_, cancel := context.WithCancel(context.Background())
 
 	cfg, err := config.NewConfig()
 	if err != nil {
@@ -26,13 +34,35 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialize router
-	r := router.InitRouter()
+	// Handle graceful shutdown
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+		<-quit
+		log.Info("Shutting down server...")
+		cancel()
+	}()
+
+	// Initialize dependencies
+	//syncRepo := repository.NewSyncRepository(cfg, db)
+	//_ := usecase.NewJiraSyncUsecase(cfg, db, syncRepo)
+
+	// Create Gin Router
+	r := server.InitServer()
+
+	// Initialize handlers
+	hr := &routes.HandlerRegistry{
+		HealthHandler: delivery.NewHealthHandler(r, log),
+	}
+
+	routes.RegisterRoutes(r, hr)
 
 	// Start server
-	port := viper.GetString("server.port")
-	log.Printf("Starting server on :%s", port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), r); err != nil {
-		log.Fatalf("Could not start server: %s\n", err)
+	port := cfg.GetString("server.port")
+	address := ":" + port // Ensure correct format ":8080"
+
+	log.Infof("Server is running on %s", address)
+	if err := r.Run(address); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }
