@@ -3,32 +3,36 @@ package repository
 import (
 	"be/internal/domain"
 	"be/internal/infrastructure/config"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type SyncRepository interface {
-	FetchPendingSync(jiraID string) (*domain.SyncHistory, error)
-	FetchUserList() ([]domain.User, error)
-	MarkSyncAsCompleted(syncID int, success bool, recordsSynced int, errMessage *string) error
-	FetchJiraTasksWithFilter(jiraUserID string, cfg *config.Config) (domain.JiraResponse, error)
-	InsertSyncHistory(db *sql.DB, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error
+	FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (domain.JiraResponse, error)
+	FetchPendingSync(ctx context.Context, jiraID string) (*domain.SyncHistory, error)
+	FetchUserList(ctx context.Context) ([]domain.User, error)
+	InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error
+	MarkSyncAsCompleted(ctx context.Context, syncID int, success bool, recordsSynced int, errMessage *string) error
 }
 
 type syncRepository struct {
 	cfg *config.Config
 	db  *sql.DB
+	log *logrus.Logger
 }
 
-func NewSyncRepository(cfg *config.Config, db *sql.DB) SyncRepository {
-	return &syncRepository{cfg: cfg, db: db}
+func NewSyncRepository(cfg *config.Config, log *logrus.Logger, db *sql.DB) SyncRepository {
+	return &syncRepository{cfg: cfg, db: db, log: log}
 }
 
-func (r *syncRepository) FetchPendingSync(jiraID string) (*domain.SyncHistory, error) {
+func (r *syncRepository) FetchPendingSync(ctx context.Context, jiraID string) (*domain.SyncHistory, error) {
 	query := `
 		SELECT id, jira_id, sync_date, started_at, finished_at, status, 
 		       error_message, records_synced, total_expected_records, sync_attempt, created_at
@@ -55,7 +59,16 @@ func (r *syncRepository) FetchPendingSync(jiraID string) (*domain.SyncHistory, e
 	return &sync, nil
 }
 
-func (r *syncRepository) FetchUserList() ([]domain.User, error) {
+func (r *syncRepository) FetchUserList(ctx context.Context) ([]domain.User, error) {
+
+	select {
+	case <-ctx.Done():
+		r.log.Warn("SaveOrder operation was canceled!")
+		return nil, ctx.Err()
+	default:
+		// Continue processing
+	}
+
 	query := `select ID, username, jira_user_id, status from users u where status = 'active';`
 
 	rows, err := r.db.Query(query)
@@ -83,7 +96,7 @@ func (r *syncRepository) FetchUserList() ([]domain.User, error) {
 	return users, nil // Return slice of users
 }
 
-func (r *syncRepository) MarkSyncAsCompleted(syncID int, success bool, recordsSynced int, errMessage *string) error {
+func (r *syncRepository) MarkSyncAsCompleted(ctx context.Context, syncID int, success bool, recordsSynced int, errMessage *string) error {
 	status := "success"
 	if !success {
 		status = "failed"
@@ -98,7 +111,7 @@ func (r *syncRepository) MarkSyncAsCompleted(syncID int, success bool, recordsSy
 	return err
 }
 
-func (r *syncRepository) FetchJiraTasksWithFilter(jiraUserID string, cfg *config.Config) (domain.JiraResponse, error) {
+func (r *syncRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (domain.JiraResponse, error) {
 
 	jiraData := domain.JiraResponse{}
 	startAt := 0
@@ -143,7 +156,7 @@ func (r *syncRepository) FetchJiraTasksWithFilter(jiraUserID string, cfg *config
 	return jiraData, nil
 }
 
-func (r *syncRepository) InsertSyncHistory(db *sql.DB, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error {
+func (r *syncRepository) InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error {
 	now := time.Now()
 	syncDate := now.Format("2006-01-02")
 
@@ -163,7 +176,7 @@ func (r *syncRepository) InsertSyncHistory(db *sql.DB, jiraID string, status str
 	`
 
 	var id int
-	err := db.QueryRow(query, jiraID, syncDate, startedAt, now, status, errMessage, recordsSynced, totalExpected).Scan(&id)
+	err := r.db.QueryRow(query, jiraID, syncDate, startedAt, now, status, errMessage, recordsSynced, totalExpected).Scan(&id)
 	if err != nil {
 		return err
 	}

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"be/internal/delivery/cron"
 	"be/internal/infrastructure/config"
 	"be/internal/infrastructure/db"
+	"be/internal/infrastructure/logger"
 	"be/internal/repository"
 	"be/internal/usecase"
 )
@@ -18,7 +20,12 @@ func main() {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	c := cron.New()
+	log := logger.InitLogger()
+	log.Info("Starting server...")
+
+	// Create base context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	// Initialize database
 	db, err := db.InitDB(cfg)
@@ -28,13 +35,13 @@ func main() {
 	defer db.Close()
 
 	// Initialize dependencies
-	syncRepo := repository.NewSyncRepository(cfg, db)
-	jiraSync := usecase.NewJiraSyncUsecase(cfg, db, syncRepo)
+	syncRepo := repository.NewSyncRepository(cfg, log, db)
+	jiraSync := usecase.NewJiraSyncUsecase(cfg, log, syncRepo)
 
-	cron.RegisterJobs(c, jiraSync)
+	c := cron.NewWorker(log, jiraSync)
 
 	fmt.Println("Starting Cron Jobs...")
-	c.Start()
+	c.Start(ctx)
 
 	// Keep the process running
 	select {}
