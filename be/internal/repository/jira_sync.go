@@ -111,7 +111,7 @@ func (r *syncRepository) MarkSyncAsCompleted(ctx context.Context, syncID int, su
 	return err
 }
 
-func (r *syncRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (domain.JiraResponse, error) {
+func (r *syncRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (jiraResp domain.JiraResponse, err error) {
 
 	jiraData := domain.JiraResponse{}
 	startAt := 0
@@ -125,6 +125,8 @@ func (r *syncRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserI
 
 	client := &http.Client{}
 	reqURL := fmt.Sprintf("%s%s?jql=%s&&maxResults=50&startAt=%d", r.cfg.GetString("jira.baseurl"), r.cfg.GetString("jira.searchurl"), url.QueryEscape(jql), startAt)
+
+	r.log.Printf("url: %s", reqURL)
 
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
@@ -144,16 +146,12 @@ func (r *syncRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserI
 		return jiraData, fmt.Errorf("failed to fetch data: %s", resp.Status)
 	}
 
-	var tmpJiraData *domain.JiraResponse
-
-	err = json.NewDecoder(resp.Body).Decode(&tmpJiraData)
+	err = json.NewDecoder(resp.Body).Decode(&jiraResp)
 	if err != nil {
 		return jiraData, err
 	}
 
-	jiraData.Issues = append(jiraData.Issues, tmpJiraData.Issues...)
-
-	return jiraData, nil
+	return jiraResp, nil
 }
 
 func (r *syncRepository) InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error {
