@@ -20,7 +20,6 @@ func main() {
 	}
 
 	log := logger.InitLogger()
-	log.Info("Starting server...")
 
 	// Create base context
 	ctx, cancel := context.WithCancel(context.Background())

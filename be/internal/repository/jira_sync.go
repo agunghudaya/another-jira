@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"be/internal/domain"
+	domain "be/internal/domain/repository"
 	"be/internal/infrastructure/config"
 	"context"
 	"database/sql"
@@ -20,6 +20,7 @@ type SyncRepository interface {
 	FetchUserList(ctx context.Context) ([]domain.User, error)
 	InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error
 	MarkSyncAsCompleted(ctx context.Context, syncID int, success bool, recordsSynced int, errMessage *string) error
+	InsertJiraIssues(ctx context.Context, issue domain.JiraIssue) error
 }
 
 type syncRepository struct {
@@ -192,6 +193,54 @@ func (r *syncRepository) InsertSyncHistory(ctx context.Context, jiraID string, s
 		return err
 	}
 
-	fmt.Printf("Inserted/Updated sync history ID: %d\n", id)
+	r.log.Infof("Inserted/Updated sync history ID: %d\n", id)
+	return nil
+}
+
+func (r *syncRepository) InsertJiraIssues(ctx context.Context, issue domain.JiraIssue) error {
+	query := `
+    INSERT INTO public.jira_issues (
+        "key", "self", url, 
+        assignee_email, assignee_name, 
+        reporter_email, reporter_name, 
+        creator_email, creator_name, 
+        summary, description, 
+        created, updated, duedate, statuscategorychangedate, 
+        timeoriginalestimate, issue_type_name, issue_type_desc, 
+        project_id, project_key, project_name, 
+        priority_name, timeestimate, 
+        status_name, status_desc, status_category_name, status_category_key
+    ) VALUES (
+        $1, $2, $3, 
+        $4, $5, 
+        $6, $7, 
+        $8, $9, 
+        $10, $11, 
+        $12, $13, $14, $15, 
+        $16, $17, $18, 
+        $19, $20, $21, 
+        $22, $23, 
+        $24, $25, $26, $27
+    ) RETURNING id;`
+
+	var id int
+	err := r.db.QueryRowContext(ctx, query,
+		issue.Key, issue.Self, issue.URL,
+		issue.AssigneeEmail, issue.AssigneeName,
+		issue.ReporterEmail, issue.ReporterName,
+		issue.CreatorEmail, issue.CreatorName,
+		issue.Summary, issue.Description,
+		issue.Created, issue.Updated, issue.DueDate, issue.StatusCategoryChange,
+		issue.TimeOriginalEstimate, issue.IssueTypeName, issue.IssueTypeDescription,
+		issue.ProjectID, issue.ProjectKey, issue.ProjectName,
+		issue.PriorityName, issue.TimeEstimate,
+		issue.StatusName, issue.StatusDescription, issue.StatusCategoryName, issue.StatusCategoryKey,
+	).Scan(&id)
+
+	if err != nil {
+		return err
+	}
+
+	r.log.Infof("Inserted Jira issue with ID: %d\n", id)
 	return nil
 }

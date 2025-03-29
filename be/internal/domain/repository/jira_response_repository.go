@@ -1,4 +1,4 @@
-package domain
+package repository
 
 type JiraResponse struct {
 	Expand     string  `json:"expand"`
