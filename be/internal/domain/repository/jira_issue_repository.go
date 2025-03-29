@@ -6,6 +6,7 @@ import (
 )
 
 type JiraIssue struct {
+	ID                   int
 	Key                  string
 	Self                 string
 	URL                  string

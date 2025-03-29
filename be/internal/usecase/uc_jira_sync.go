@@ -94,15 +94,26 @@ func (s *jiraSync) JiraUserSync(ctx context.Context, user *domainRP.User) error 
 
 		if err != nil {
 			log.Println("FetchJiraTasksWithFilter fail with err:", err)
-			s.syncRepo.InsertSyncHistory(ctx, user.JiraUserID, "fail", len(jiraResponse.Issues), jiraResponse.Total, err.Error(), startedAt)
 			return err
 		}
 
 		jiraIssues := domainRP.MapJiraResponseToJiraIssues(jiraResponse)
 		s.log.Printf("user_id [%s] has %d issues", user.JiraUserID, len(jiraIssues))
 		for _, issue := range jiraIssues {
+
+			existingIssue, err := s.syncRepo.FetchJiraIssue(ctx, issue.Key)
+			if err != nil {
+				log.Println("FetchJiraIssue fail with err:", err)
+				return err
+			}
+
+			if existingIssue.Key == issue.Key {
+				s.log.Infof("Skipping issue %s as it already exists", issue.Key)
+				continue
+			}
+
 			if err := s.syncRepo.InsertJiraIssues(ctx, issue); err != nil {
-				s.log.Println("InsertJiraIssues fail with err:", err)
+				s.log.Infoln("InsertJiraIssues fail with err:", err)
 				return err
 			}
 		}

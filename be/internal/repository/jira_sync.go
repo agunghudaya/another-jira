@@ -15,12 +15,15 @@ import (
 )
 
 type SyncRepository interface {
+	FetchJiraIssue(ctx context.Context, issueKey string) (issue domain.JiraIssue, err error)
 	FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (domain.JiraResponse, error)
 	FetchPendingSync(ctx context.Context, jiraID string) ([]domain.SyncHistory, error)
 	FetchUserList(ctx context.Context) ([]domain.User, error)
-	InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error
-	MarkSyncAsCompleted(ctx context.Context, syncID int, success bool, recordsSynced int, errMessage *string) error
+
 	InsertJiraIssues(ctx context.Context, issue domain.JiraIssue) error
+	InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error
+
+	MarkSyncAsCompleted(ctx context.Context, syncID int, success bool, recordsSynced int, errMessage *string) error
 }
 
 type syncRepository struct {
@@ -77,7 +80,7 @@ func (r *syncRepository) FetchUserList(ctx context.Context) ([]domain.User, erro
 
 	select {
 	case <-ctx.Done():
-		r.log.Warn("SaveOrder operation was canceled!")
+		r.log.Warn("FetchUserList operation was canceled!")
 		return nil, ctx.Err()
 	default:
 		// Continue processing
@@ -243,4 +246,40 @@ func (r *syncRepository) InsertJiraIssues(ctx context.Context, issue domain.Jira
 
 	r.log.Infof("Inserted Jira issue with ID: %d\n", id)
 	return nil
+}
+
+func (r *syncRepository) FetchJiraIssue(ctx context.Context, issueKey string) (domain.JiraIssue, error) {
+	query := `
+       SELECT id, "key", "self", url, assignee_email, assignee_name, reporter_email, reporter_name, creator_email, creator_name, summary, description, created, updated, duedate, statuscategorychangedate, timeoriginalestimate, issue_type_name, issue_type_desc, project_id, project_key, project_name, priority_name, timeestimate, status_name, status_desc, status_category_name, status_category_key
+        FROM public.jira_issues
+        WHERE 
+            "key" = $1
+        LIMIT 1;
+    `
+
+	var issue domain.JiraIssue
+	err := r.db.QueryRowContext(ctx, query, issueKey).Scan(
+		&issue.ID, &issue.Key, &issue.Self, &issue.URL,
+		&issue.AssigneeEmail, &issue.AssigneeName,
+		&issue.ReporterEmail, &issue.ReporterName,
+		&issue.CreatorEmail, &issue.CreatorName,
+		&issue.Summary, &issue.Description,
+		&issue.Created, &issue.Updated, &issue.DueDate, &issue.StatusCategoryChange,
+		&issue.TimeOriginalEstimate, &issue.IssueTypeName, &issue.IssueTypeDescription,
+		&issue.ProjectID, &issue.ProjectKey, &issue.ProjectName,
+		&issue.PriorityName, &issue.TimeEstimate,
+		&issue.StatusName, &issue.StatusDescription, &issue.StatusCategoryName, &issue.StatusCategoryKey,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Handle case where no rows are returned
+			r.log.Warnf("No Jira issue found for key: %s", issueKey)
+			return domain.JiraIssue{}, nil
+		}
+		// Handle other errors
+		r.log.Errorf("Error fetching Jira issue for key %s: %v", issueKey, err)
+		return domain.JiraIssue{}, err
+	}
+
+	return issue, nil
 }
