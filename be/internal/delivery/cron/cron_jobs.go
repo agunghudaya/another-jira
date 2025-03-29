@@ -11,13 +11,13 @@ import (
 type Worker struct {
 	cron       *cron.Cron
 	jiraSyncUC usecase.JiraSync
-	logger     *logrus.Logger
+	log        *logrus.Logger
 }
 
 // NewWorker initializes a new cron job worker
-func NewWorker(logger *logrus.Logger, jiraSyncUC usecase.JiraSync) *Worker {
+func NewWorker(log *logrus.Logger, jiraSyncUC usecase.JiraSync) *Worker {
 	return &Worker{
-		logger:     logger,
+		log:        log,
 		jiraSyncUC: jiraSyncUC,
 		cron:       cron.New(),
 	}
@@ -26,12 +26,12 @@ func NewWorker(logger *logrus.Logger, jiraSyncUC usecase.JiraSync) *Worker {
 // Start registers and starts cron jobs
 func (w *Worker) Start(ctx context.Context) {
 
-	_, err := w.cron.AddFunc("* */2 * * *", func() { w.jiraSyncUC.ProcessSync(ctx) })
+	_, err := w.cron.AddFunc("*/2 * * * *", func() { w.jiraSyncUC.ProcessSync(ctx) })
 	if err != nil {
-		w.logger.Println("Error scheduling cron job:", err)
+		w.log.Println("Error scheduling cron job:", err)
 		return
 	}
 
 	w.cron.Start()
-	w.logger.Println("Cron jobs started.")
+	w.log.Println("Cron jobs started.")
 }

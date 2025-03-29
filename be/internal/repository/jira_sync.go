@@ -16,7 +16,7 @@ import (
 
 type SyncRepository interface {
 	FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (domain.JiraResponse, error)
-	FetchPendingSync(ctx context.Context, jiraID string) (*domain.SyncHistory, error)
+	FetchPendingSync(ctx context.Context, jiraID string) ([]domain.SyncHistory, error)
 	FetchUserList(ctx context.Context) ([]domain.User, error)
 	InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error
 	MarkSyncAsCompleted(ctx context.Context, syncID int, success bool, recordsSynced int, errMessage *string) error
@@ -32,31 +32,44 @@ func NewSyncRepository(cfg *config.Config, log *logrus.Logger, db *sql.DB) SyncR
 	return &syncRepository{cfg: cfg, db: db, log: log}
 }
 
-func (r *syncRepository) FetchPendingSync(ctx context.Context, jiraID string) (*domain.SyncHistory, error) {
+func (r *syncRepository) FetchPendingSync(ctx context.Context, jiraID string) ([]domain.SyncHistory, error) {
 	query := `
 		SELECT id, jira_id, sync_date, started_at, finished_at, status, 
 		       error_message, records_synced, total_expected_records, sync_attempt, created_at
 		FROM jira_user_sync_history 
 		WHERE 
 			jira_id = $1 
-			AND sync_date = now()
+			AND sync_date = CURRENT_DATE
 		ORDER BY started_at DESC ;
 	`
 
-	var sync domain.SyncHistory
-	err := r.db.QueryRow(query, jiraID).Scan(
-		&sync.ID, &sync.JiraID, &sync.SyncDate, &sync.StartedAt, &sync.FinishedAt,
-		&sync.Status, &sync.ErrorMessage, &sync.RecordsSynced, &sync.TotalExpectedRecords,
-		&sync.SyncAttempt, &sync.CreatedAt,
-	)
+	rows, err := r.db.Query(query, jiraID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-	if err == sql.ErrNoRows {
-		return nil, nil
-	} else if err != nil {
+	var syncs []domain.SyncHistory
+
+	for rows.Next() {
+		var sync domain.SyncHistory
+		err := rows.Scan(
+			&sync.ID, &sync.JiraID, &sync.SyncDate, &sync.StartedAt, &sync.FinishedAt,
+			&sync.Status, &sync.ErrorMessage, &sync.RecordsSynced, &sync.TotalExpectedRecords,
+			&sync.SyncAttempt, &sync.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		syncs = append(syncs, sync)
+	}
+
+	// Check for errors during iteration
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return &sync, nil
+	return syncs, nil
 }
 
 func (r *syncRepository) FetchUserList(ctx context.Context) ([]domain.User, error) {

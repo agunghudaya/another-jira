@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"be/internal/delivery/cron"
@@ -40,7 +39,7 @@ func main() {
 
 	c := cron.NewWorker(log, jiraSync)
 
-	fmt.Println("Starting Cron Jobs...")
+	log.Info("Starting Cron Jobs...")
 	c.Start(ctx)
 
 	// Keep the process running
