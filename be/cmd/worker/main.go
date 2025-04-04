@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"be/internal/delivery/cron"
@@ -10,7 +9,7 @@ import (
 	"be/internal/infrastructure/db"
 	"be/internal/infrastructure/logger"
 	"be/internal/repository"
-	"be/internal/usecase"
+	ucJiraSync "be/internal/usecase/jira_sync"
 )
 
 func main() {
@@ -21,7 +20,6 @@ func main() {
 	}
 
 	log := logger.InitLogger()
-	log.Info("Starting server...")
 
 	// Create base context
 	ctx, cancel := context.WithCancel(context.Background())
@@ -36,11 +34,11 @@ func main() {
 
 	// Initialize dependencies
 	syncRepo := repository.NewSyncRepository(cfg, log, db)
-	jiraSync := usecase.NewJiraSyncUsecase(cfg, log, syncRepo)
+	jiraSync := ucJiraSync.NewJiraSyncUsecase(cfg, log, syncRepo)
 
 	c := cron.NewWorker(log, jiraSync)
 
-	fmt.Println("Starting Cron Jobs...")
+	log.Info("Starting Cron Jobs...")
 	c.Start(ctx)
 
 	// Keep the process running

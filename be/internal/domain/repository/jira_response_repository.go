@@ -1,4 +1,4 @@
-package domain
+package repository
 
 type JiraResponse struct {
 	Expand     string  `json:"expand"`
@@ -17,30 +17,36 @@ type Issue struct {
 }
 
 type Fields struct {
-	Resolution                    interface{}   `json:"resolution"`
-	LastViewed                    interface{}   `json:"lastViewed"`
-	Labels                        []string      `json:"labels"`
-	AggregateTimeOriginalEstimate interface{}   `json:"aggregatetimeoriginalestimate"`
-	IssueLinks                    []interface{} `json:"issuelinks"`
-	Assignee                      JiraUser      `json:"assignee"`
-	Components                    []interface{} `json:"components"`
-	Subtasks                      []interface{} `json:"subtasks"`
-	Customfield10164              CustomField   `json:"customfield_10164"`
-	Reporter                      JiraUser      `json:"reporter"`
-	Customfield10045              string        `json:"customfield_10045"`
-	Customfield10046              float64       `json:"customfield_10046"`
-	Progress                      Progress      `json:"progress"`
-	IssueType                     IssueType     `json:"issuetype"`
-	Project                       Project       `json:"project"`
-	Customfield10032              []interface{} `json:"customfield_10032"`
-	Customfield10157              []interface{} `json:"customfield_10157"`
-	ResolutionDate                interface{}   `json:"resolutiondate"`
-	Watches                       Watches       `json:"watches"`
-	Customfield10019              string        `json:"customfield_10019"`
-	Created                       string        `json:"created"`
-	Updated                       string        `json:"updated"`
-	TimeOriginalEstimate          interface{}   `json:"timeoriginalestimate"`
-	Description                   string        `json:"description"`
+	Assignee                  JiraUser      `json:"assignee"`
+	Components                []interface{} `json:"components"`
+	Created                   string        `json:"created"`
+	Customfield10019          string        `json:"customfield_10019"`
+	Customfield10032          []interface{} `json:"customfield_10032"`
+	Customfield10045          string        `json:"customfield_10045"`
+	Customfield10046          float64       `json:"customfield_10046"`
+	Customfield10157          []interface{} `json:"customfield_10157"`
+	Customfield10164          CustomField   `json:"customfield_10164"`
+	Description               string        `json:"description"`
+	DueDate                   string        `json:"duedate"`
+	IssueLinks                []interface{} `json:"issuelinks"`
+	IssueType                 IssueType     `json:"issuetype"`
+	Labels                    []string      `json:"labels"`
+	LastViewed                interface{}   `json:"lastViewed"`
+	Progress                  Progress      `json:"progress"`
+	Project                   Project       `json:"project"`
+	Reporter                  JiraUser      `json:"reporter"`
+	Resolution                interface{}   `json:"resolution"`
+	ResolutionDate            interface{}   `json:"resolutiondate"`
+	Subtasks                  []interface{} `json:"subtasks"`
+	Updated                   string        `json:"updated"`
+	Watches                   Watches       `json:"watches"`
+	StatusCategoryChangedDate string        `json:"statuscategorychangedate"`
+
+	//time estimation
+	AggregateTimeEstimate         interface{} `json:"aggregatetimeestimate"`
+	AggregateTimeOriginalEstimate interface{} `json:"aggregatetimeoriginalestimate"`
+	TimeEstimate                  interface{} `json:"timeestimate"`
+	TimeOriginalEstimate          interface{} `json:"timeoriginalestimate"`
 }
 
 type JiraUser struct {

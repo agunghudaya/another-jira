@@ -18,7 +18,6 @@ CREATE TABLE jira_issues (
     updated TIMESTAMP NOT NULL, -- Last update timestamp
     duedate DATE, -- Due date of the issue
     statuscategorychangedate TIMESTAMP, -- Status category change timestamp
-    timeoriginalestimate INT, -- Original time estimate (in seconds)
 
     issue_type_name VARCHAR(255), -- Name of the issue type
     issue_type_desc TEXT, -- Description of the issue type
@@ -28,12 +27,17 @@ CREATE TABLE jira_issues (
     project_name VARCHAR(255) NOT NULL, -- Project name
 
     priority_name VARCHAR(255), -- Priority name
-    timeestimate INT, -- Remaining time estimate (in seconds)
 
     status_name VARCHAR(255), -- Status name
     status_desc TEXT, -- Status description
     status_category_name VARCHAR(255), -- Status category name
-    status_category_key VARCHAR(255) -- Status category key
+    status_category_key VARCHAR(255), -- Status category key
+
+    time_estimate DOUBLE PRECISION,
+    time_original_estimate DOUBLE PRECISION, 
+    aggregate_time_estimate DOUBLE PRECISION,
+    aggregate_time_original_estimate DOUBLE PRECISION
+
 );
 
 

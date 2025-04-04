@@ -1,22 +1,9 @@
-package domain
+package repository
 
 import (
 	"database/sql"
 	"time"
 )
-
-type JiraItem struct {
-	ID     int
-	Title  string
-	Status string
-}
-
-type User struct {
-	ID         int
-	Username   string
-	JiraUserID string
-	Status     string
-}
 
 type SyncHistory struct {
 	ID                   int
