@@ -108,11 +108,19 @@ func (s *jiraSync) processJiraIssue(ctx context.Context, issue domainRP.JiraIssu
 	}
 
 	if existingIssue.Key == issue.Key {
-		s.log.Infof("Skipping issue %s as it already exists", issue.Key)
-		return nil
+		if issue.Updated.After(existingIssue.Updated) {
+			if err := s.syncRepo.UpdateJiraIssue(ctx, issue); err != nil {
+				s.log.Infoln("UpdateJiraIssue fail with err:", err)
+				return err
+			}
+
+		} else {
+			s.log.Infof("Skipping issue %s as it already exists", issue.Key)
+			return nil
+		}
 	}
 
-	if err := s.syncRepo.InsertJiraIssues(ctx, issue); err != nil {
+	if err := s.syncRepo.InsertJiraIssue(ctx, issue); err != nil {
 		s.log.Infoln("InsertJiraIssues fail with err:", err)
 		return err
 	}
