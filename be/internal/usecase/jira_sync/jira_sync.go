@@ -10,7 +10,7 @@ import (
 
 func (s *jiraSync) ProcessSync(ctx context.Context) error {
 
-	users, err := s.syncRepo.FetchUserList(ctx)
+	users, err := s.jiraDB.FetchUserList(ctx)
 	if err != nil {
 		s.log.Println("FetchUserList fail with err:", err)
 		return err
@@ -53,7 +53,7 @@ func (s *jiraSync) JiraUserSync(ctx context.Context, user *domainRP.User) error 
 }
 
 func (s *jiraSync) fetchSyncHistories(ctx context.Context, jiraUserID string) ([]domainRP.SyncHistory, error) {
-	syncHistories, err := s.syncRepo.FetchPendingSync(ctx, jiraUserID)
+	syncHistories, err := s.jiraDB.FetchPendingSync(ctx, jiraUserID)
 	if err != nil {
 		s.log.Errorln("FetchPendingSync fail with err:", err)
 		return nil, err
@@ -82,7 +82,7 @@ func (s *jiraSync) analyzeSyncHistories(syncHistories []domainRP.SyncHistory) (b
 }
 
 func (s *jiraSync) performSync(ctx context.Context, user *domainRP.User, startedAt time.Time) error {
-	jiraResponse, err := s.syncRepo.FetchJiraTasksWithFilter(ctx, user.JiraUserID, s.cfg)
+	jiraResponse, err := s.jiraAtlassian.FetchJiraTasksWithFilter(ctx, user.JiraUserID, s.cfg)
 	if err != nil {
 		s.log.Println("FetchJiraTasksWithFilter fail with err:", err)
 		return err
@@ -97,11 +97,11 @@ func (s *jiraSync) performSync(ctx context.Context, user *domainRP.User, started
 		}
 	}
 
-	return s.syncRepo.InsertSyncHistory(ctx, user.JiraUserID, "success", len(jiraResponse.Issues), jiraResponse.Total, "", startedAt)
+	return s.jiraDB.InsertSyncHistory(ctx, user.JiraUserID, "success", len(jiraResponse.Issues), jiraResponse.Total, "", startedAt)
 }
 
 func (s *jiraSync) processJiraIssue(ctx context.Context, issue domainRP.JiraIssue) error {
-	existingIssue, err := s.syncRepo.FetchJiraIssue(ctx, issue.Key)
+	existingIssue, err := s.jiraDB.FetchJiraIssue(ctx, issue.Key)
 	if err != nil {
 		s.log.Println("FetchJiraIssue fail with err:", err)
 		return err
@@ -109,7 +109,7 @@ func (s *jiraSync) processJiraIssue(ctx context.Context, issue domainRP.JiraIssu
 
 	if existingIssue.Key == issue.Key {
 		if issue.Updated.After(existingIssue.Updated) {
-			if err := s.syncRepo.UpdateJiraIssue(ctx, issue); err != nil {
+			if err := s.jiraDB.UpdateJiraIssue(ctx, issue); err != nil {
 				s.log.Infoln("UpdateJiraIssue fail with err:", err)
 				return err
 			}
@@ -120,7 +120,7 @@ func (s *jiraSync) processJiraIssue(ctx context.Context, issue domainRP.JiraIssu
 		}
 	}
 
-	if err := s.syncRepo.InsertJiraIssue(ctx, issue); err != nil {
+	if err := s.jiraDB.InsertJiraIssue(ctx, issue); err != nil {
 		s.log.Infoln("InsertJiraIssues fail with err:", err)
 		return err
 	}
@@ -129,7 +129,7 @@ func (s *jiraSync) processJiraIssue(ctx context.Context, issue domainRP.JiraIssu
 }
 
 func (s *jiraSync) GetJiraUserList(ctx context.Context) (user *[]domainRP.User, err error) {
-	users, err := s.syncRepo.FetchUserList(ctx)
+	users, err := s.jiraDB.FetchUserList(ctx)
 	if err != nil {
 		log.Println("FetchUserList fail with err:", err)
 		return nil, err
@@ -139,7 +139,7 @@ func (s *jiraSync) GetJiraUserList(ctx context.Context) (user *[]domainRP.User, 
 }
 
 func (s *jiraSync) CheckJiraSynced(ctx context.Context) error {
-	users, err := s.syncRepo.FetchUserList(ctx)
+	users, err := s.jiraDB.FetchUserList(ctx)
 	if err != nil {
 		log.Println("FetchUserList fail with err:", err)
 		return err

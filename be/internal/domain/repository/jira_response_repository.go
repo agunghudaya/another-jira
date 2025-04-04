@@ -1,6 +1,6 @@
 package repository
 
-type JiraResponse struct {
+type JiraIssueResponse struct {
 	Expand     string  `json:"expand"`
 	StartAt    int     `json:"startAt"`
 	MaxResults int     `json:"maxResults"`
@@ -8,15 +8,23 @@ type JiraResponse struct {
 	Issues     []Issue `json:"issues"`
 }
 
-type Issue struct {
-	Expand string `json:"expand"`
-	ID     string `json:"id"`
-	Self   string `json:"self"`
-	Key    string `json:"key"`
-	Fields Fields `json:"fields"`
+type JiraIssueHistory struct {
+	Expand    string    `json:"expand"`
+	ID        string    `json:"id"`
+	Self      string    `json:"self"`
+	Key       string    `json:"key"`
+	Changelog Changelog `json:"changelog"`
 }
 
-type Fields struct {
+type Issue struct {
+	Expand      string      `json:"expand"`
+	ID          string      `json:"id"`
+	Self        string      `json:"self"`
+	Key         string      `json:"key"`
+	IssueFields IssueFields `json:"fields"`
+}
+
+type IssueFields struct {
 	Assignee                  JiraUser      `json:"assignee"`
 	Components                []interface{} `json:"components"`
 	Created                   string        `json:"created"`
@@ -49,15 +57,28 @@ type Fields struct {
 	TimeOriginalEstimate          interface{} `json:"timeoriginalestimate"`
 }
 
+type Changelog struct {
+	StartAt    int       `json:"startAt"`
+	MaxResults int       `json:"maxResults"`
+	Total      int       `json:"total"`
+	Histories  []History `json:"histories"`
+}
+
+type History struct {
+	ID      string   `json:"id"`
+	Author  JiraUser `json:"author"`
+	Created string   `json:"created"` // Consider using time.Time and parsing this if needed
+	Items   []Change `json:"items"`
+}
+
 type JiraUser struct {
-	Self        string            `json:"self"`
-	AccountID   string            `json:"accountId"`
-	Email       string            `json:"emailAddress"`
-	AvatarUrls  map[string]string `json:"avatarUrls"`
-	DisplayName string            `json:"displayName"`
-	Active      bool              `json:"active"`
-	TimeZone    string            `json:"timeZone"`
-	AccountType string            `json:"accountType"`
+	Self        string `json:"self"`
+	AccountID   string `json:"accountId"`
+	Email       string `json:"emailAddress"`
+	DisplayName string `json:"displayName"`
+	Active      bool   `json:"active"`
+	TimeZone    string `json:"timeZone"`
+	AccountType string `json:"accountType"`
 }
 
 type CustomField struct {
@@ -115,4 +136,14 @@ type CustomField18 struct {
 type NonEditableReason struct {
 	Reason  string `json:"reason"`
 	Message string `json:"message"`
+}
+
+type Change struct {
+	Field      string `json:"field"`
+	FieldType  string `json:"fieldtype"`
+	FieldID    string `json:"fieldId"`
+	From       string `json:"from,omitempty"`
+	FromString string `json:"fromString,omitempty"`
+	To         string `json:"to,omitempty"`
+	ToString   string `json:"toString,omitempty"`
 }
