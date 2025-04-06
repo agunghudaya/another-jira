@@ -125,6 +125,28 @@ func (s *jiraSync) processJiraIssue(ctx context.Context, issue domainRP.JiraIssu
 		return err
 	}
 
+	if issue.Key == "BIT-20959" {
+		if err := s.updateJiraIssueHistories(ctx, issue); err != nil {
+			s.log.Infoln("updateJiraIssueHistories fail with err:", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *jiraSync) updateJiraIssueHistories(ctx context.Context, issue domainRP.JiraIssue) error {
+
+	histories, err := s.jiraAtlassian.FetchJiraIssueHistories(ctx, issue.Key, s.cfg)
+	if err != nil {
+		s.log.Println("FetchJiraIssueHistories fail with err:", err)
+		return err
+	}
+
+	for _, history := range histories.Changelog.Histories {
+		s.log.Infof("history\t:%s\ncreated\t:%s\nfield\t:%s\nfrom\t:%s\nto\t:%s\n", histories.ID, history.Created, history.Items[0].Field, history.Items[0].FromString, history.Items[0].ToString)
+	}
+
 	return nil
 }
 

@@ -52,3 +52,38 @@ func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, 
 
 	return jiraResp, nil
 }
+
+func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (domain.JiraIssueHistory, error) {
+
+	jiraIssueHistories := domain.JiraIssueHistory{}
+
+	client := &http.Client{}
+	reqURL := fmt.Sprintf("%s%s/%s?expand=changelog", r.cfg.GetString("jira.baseurl"), r.cfg.GetString("jira.detailurl"), jiraIssueKey)
+
+	r.log.Printf("url: %s", reqURL)
+
+	req, err := http.NewRequest("GET", reqURL, nil)
+	if err != nil {
+		return jiraIssueHistories, err
+	}
+
+	req.SetBasicAuth(cfg.GetString("jira_username"), cfg.GetString("jira_token"))
+	req.Header.Add("Accept", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return jiraIssueHistories, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return jiraIssueHistories, fmt.Errorf("failed to fetch data: %s", resp.Status)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&jiraIssueHistories)
+	if err != nil {
+		return jiraIssueHistories, err
+	}
+
+	return jiraIssueHistories, nil
+}
