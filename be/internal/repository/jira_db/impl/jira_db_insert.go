@@ -1,4 +1,4 @@
-package jira_db
+package jira_db_impl
 
 import (
 	repository "be/internal/domain/repository"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (r *jiraDBRepository) InsertJiraIssue(ctx context.Context, issue repository.JiraIssue) error {
+func (r *jiraDBRepository) InsertJiraIssue(ctx context.Context, issue repository.JiraIssueEntity) error {
 	query := `
     INSERT INTO public.jira_issues (
         "key", "self", url, 
@@ -60,7 +60,7 @@ func (r *jiraDBRepository) InsertJiraIssue(ctx context.Context, issue repository
 	return nil
 }
 
-func (r *jiraDBRepository) InsertJiraIssueHistory(ctx context.Context, history repository.JiraIssueHistory) (int, error) {
+func (r *jiraDBRepository) InsertJiraIssueHistory(ctx context.Context, history repository.JiraIssueHistoryEntity) (int, error) {
 	query := `
 		INSERT INTO jira_issue_histories (
             issue_id, 

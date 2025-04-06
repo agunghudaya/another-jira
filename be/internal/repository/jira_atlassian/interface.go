@@ -1,9 +1,8 @@
 package jira_atlassian
 
 import (
-	"be/internal/domain/repository"
+	repository "be/internal/domain/repository"
 	"be/internal/infrastructure/config"
-	repository "be/internal/repository/jira_db/entity"
 	"context"
 	"database/sql"
 

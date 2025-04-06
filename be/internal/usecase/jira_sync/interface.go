@@ -2,7 +2,7 @@
 package jira_sync
 
 import (
-	domainRP "be/internal/domain/repository"
+	repository "be/internal/domain/repository"
 	"be/internal/infrastructure/config"
 	jiraAtlassianRp "be/internal/repository/jira_atlassian"
 	jiraDBRp "be/internal/repository/jira_db"
@@ -13,8 +13,8 @@ import (
 
 type JiraSync interface {
 	CheckJiraSynced(ctx context.Context) error
-	GetJiraUserList(ctx context.Context) (user *[]domainRP.User, err error)
-	JiraUserSync(ctx context.Context, user *domainRP.User) error
+	GetJiraUserList(ctx context.Context) (user *[]repository.UserEntity, err error)
+	JiraUserSync(ctx context.Context, user *repository.UserEntity) error
 	ProcessSync(ctx context.Context) error
 }
 

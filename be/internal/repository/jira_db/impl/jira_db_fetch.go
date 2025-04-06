@@ -1,4 +1,4 @@
-package jira_db
+package jira_db_impl
 
 import (
 	repository "be/internal/domain/repository"
@@ -6,7 +6,7 @@ import (
 	"database/sql"
 )
 
-func (r *jiraDBRepository) FetchJiraIssue(ctx context.Context, issueKey string) (repository.JiraIssue, error) {
+func (r *jiraDBRepository) FetchJiraIssue(ctx context.Context, issueKey string) (repository.JiraIssueEntity, error) {
 	query := `
         SELECT id, "key", "self", url, assignee_email, assignee_name, reporter_email, reporter_name, 
                creator_email, creator_name, summary, description, created, updated, duedate, 
@@ -20,7 +20,7 @@ func (r *jiraDBRepository) FetchJiraIssue(ctx context.Context, issueKey string) 
         LIMIT 1;
     `
 
-	var issue domain.JiraIssue
+	var issue repository.JiraIssueEntity
 	err := r.db.QueryRowContext(ctx, query, issueKey).Scan(
 		&issue.ID, &issue.Key, &issue.Self, &issue.URL,
 		&issue.AssigneeEmail, &issue.AssigneeName,
@@ -39,17 +39,17 @@ func (r *jiraDBRepository) FetchJiraIssue(ctx context.Context, issueKey string) 
 		if err == sql.ErrNoRows {
 			// Handle case where no rows are returned
 			r.log.Warnf("No Jira issue found for key: %s", issueKey)
-			return domain.JiraIssue{}, nil
+			return repository.JiraIssueEntity{}, nil
 		}
 		// Handle other errors
 		r.log.Errorf("Error fetching Jira issue for key %s: %v", issueKey, err)
-		return domain.JiraIssue{}, err
+		return repository.JiraIssueEntity{}, err
 	}
 
 	return issue, nil
 }
 
-func (r *jiraDBRepository) FetchPendingSync(ctx context.Context, jiraID string) ([]entity.SyncHistory, error) {
+func (r *jiraDBRepository) FetchPendingSync(ctx context.Context, jiraID string) ([]repository.SyncHistory, error) {
 	query := `
 		SELECT id, jira_id, sync_date, started_at, finished_at, status, 
 		       error_message, records_synced, total_expected_records, sync_attempt, created_at
@@ -66,10 +66,10 @@ func (r *jiraDBRepository) FetchPendingSync(ctx context.Context, jiraID string) 
 	}
 	defer rows.Close()
 
-	var syncs []domain.SyncHistory
+	var syncs []repository.SyncHistory
 
 	for rows.Next() {
-		var sync domain.SyncHistory
+		var sync repository.SyncHistory
 		err := rows.Scan(
 			&sync.ID, &sync.JiraID, &sync.SyncDate, &sync.StartedAt, &sync.FinishedAt,
 			&sync.Status, &sync.ErrorMessage, &sync.RecordsSynced, &sync.TotalExpectedRecords,
@@ -89,7 +89,7 @@ func (r *jiraDBRepository) FetchPendingSync(ctx context.Context, jiraID string) 
 	return syncs, nil
 }
 
-func (r *jiraDBRepository) FetchUserList(ctx context.Context) ([]repository.User, error) {
+func (r *jiraDBRepository) FetchUserList(ctx context.Context) ([]repository.UserEntity, error) {
 
 	select {
 	case <-ctx.Done():
@@ -107,10 +107,10 @@ func (r *jiraDBRepository) FetchUserList(ctx context.Context) ([]repository.User
 	}
 	defer rows.Close() // Ensure rows are closed when function exits
 
-	var users []domain.User
+	var users []repository.UserEntity
 
 	for rows.Next() {
-		var user domain.User
+		var user repository.UserEntity
 		err := rows.Scan(&user.ID, &user.Username, &user.JiraUserID, &user.Status)
 		if err != nil {
 			return nil, err // Return immediately on scan error
@@ -124,60 +124,4 @@ func (r *jiraDBRepository) FetchUserList(ctx context.Context) ([]repository.User
 	}
 
 	return users, nil // Return slice of users
-}
-
-func (r *jiraDBRepository) MarkSyncAsCompleted(ctx context.Context, syncID int, success bool, recordsSynced int, errMessage *string) error {
-	status := "success"
-	if !success {
-		status = "failed"
-	}
-
-	query := `
-		UPDATE jira_user_sync_history 
-		SET finished_at = NOW(), status = $1, records_synced = $2, error_message = $3 
-		WHERE id = $4;
-	`
-	_, err := r.db.Exec(query, status, recordsSynced, errMessage, syncID)
-	return err
-}
-
-func (r *jiraDBRepository) UpdateJiraIssue(ctx context.Context, issue repository.JiraIssue) error {
-	query := `
-        UPDATE public.jira_issues
-        SET 
-            assignee_email = $1,
-            assignee_name = $2,
-            reporter_email = $3,
-            reporter_name = $4,
-            creator_email = $5,
-            creator_name = $6,
-            summary = $7,
-            description = $8,
-            updated = $9,
-            status_name = $10,
-            status_desc = $11,
-            status_category_name = $12,
-            status_category_key = $13
-        WHERE 
-            "key" = $14;
-    `
-
-	_, err := r.db.ExecContext(ctx, query,
-		issue.AssigneeEmail, issue.AssigneeName,
-		issue.ReporterEmail, issue.ReporterName,
-		issue.CreatorEmail, issue.CreatorName,
-		issue.Summary, issue.Description,
-		issue.Updated,
-		issue.StatusName, issue.StatusDescription,
-		issue.StatusCategoryName, issue.StatusCategoryKey,
-		issue.Key,
-	)
-
-	if err != nil {
-		r.log.Errorf("Error updating Jira issue with key %s: %v", issue.Key, err)
-		return err
-	}
-
-	r.log.Infof("Updated Jira issue with key: %s", issue.Key)
-	return nil
 }

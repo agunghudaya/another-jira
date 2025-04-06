@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type JiraIssue struct {
+type JiraIssueEntity struct {
 	ID                   int
 	Key                  string
 	AssigneeEmail        string
@@ -43,9 +43,8 @@ type JiraIssue struct {
 	TimeOriginalEstimate          float64
 }
 
-// MapJiraResponseToJiraIssues maps a Jira API response to a slice of JiraIssue structs.
-func MapJiraResponseToJiraIssues(jiraResponse JiraIssueResponse) []JiraIssue {
-	var issues []JiraIssue
+func MapJiraResponseToJiraIssues(jiraResponse JiraIssueResponse) []JiraIssueEntity {
+	var issues []JiraIssueEntity
 
 	format := "2006-01-02T15:04:05.000-0700"
 
@@ -79,7 +78,7 @@ func MapJiraResponseToJiraIssues(jiraResponse JiraIssueResponse) []JiraIssue {
 				issue.IssueFields.AggregateTimeEstimate)
 		}
 
-		issues = append(issues, JiraIssue{
+		issues = append(issues, JiraIssueEntity{
 			Key:                           issue.Key,
 			Self:                          issue.Self,
 			AssigneeEmail:                 issue.IssueFields.Assignee.Email,

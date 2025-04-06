@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	domainRP "be/internal/domain/repository"
+	repository "be/internal/domain/repository"
 )
 
 func (s *jiraSync) ProcessSync(ctx context.Context) error {
@@ -31,7 +31,7 @@ func (s *jiraSync) ProcessSync(ctx context.Context) error {
 	return nil
 }
 
-func (s *jiraSync) JiraUserSync(ctx context.Context, user *domainRP.User) error {
+func (s *jiraSync) JiraUserSync(ctx context.Context, user *repository.UserEntity) error {
 	startedAt := time.Now()
 	s.log.Printf("sync user_id\t:%s", user.JiraUserID)
 
@@ -52,7 +52,7 @@ func (s *jiraSync) JiraUserSync(ctx context.Context, user *domainRP.User) error 
 	return nil
 }
 
-func (s *jiraSync) fetchSyncHistories(ctx context.Context, jiraUserID string) ([]domainRP.SyncHistory, error) {
+func (s *jiraSync) fetchSyncHistories(ctx context.Context, jiraUserID string) ([]repository.SyncHistory, error) {
 	syncHistories, err := s.jiraDB.FetchPendingSync(ctx, jiraUserID)
 	if err != nil {
 		s.log.Errorln("FetchPendingSync fail with err:", err)
@@ -62,7 +62,7 @@ func (s *jiraSync) fetchSyncHistories(ctx context.Context, jiraUserID string) ([
 	return syncHistories, nil
 }
 
-func (s *jiraSync) analyzeSyncHistories(syncHistories []domainRP.SyncHistory) (bool, int, int) {
+func (s *jiraSync) analyzeSyncHistories(syncHistories []repository.SyncHistory) (bool, int, int) {
 	totalExpectedRecords, records := 0, 0
 	doSync := len(syncHistories) == 0
 
@@ -81,14 +81,14 @@ func (s *jiraSync) analyzeSyncHistories(syncHistories []domainRP.SyncHistory) (b
 	return doSync, totalExpectedRecords, records
 }
 
-func (s *jiraSync) performSync(ctx context.Context, user *domainRP.User, startedAt time.Time) error {
+func (s *jiraSync) performSync(ctx context.Context, user *repository.UserEntity, startedAt time.Time) error {
 	jiraResponse, err := s.jiraAtlassian.FetchJiraTasksWithFilter(ctx, user.JiraUserID, s.cfg)
 	if err != nil {
 		s.log.Println("FetchJiraTasksWithFilter fail with err:", err)
 		return err
 	}
 
-	jiraIssues := domainRP.MapJiraResponseToJiraIssues(jiraResponse)
+	jiraIssues := repository.MapJiraResponseToJiraIssues(jiraResponse)
 	s.log.Printf("user_id [%s] has %d issues", user.JiraUserID, len(jiraIssues))
 
 	for _, issue := range jiraIssues {
@@ -100,7 +100,7 @@ func (s *jiraSync) performSync(ctx context.Context, user *domainRP.User, started
 	return s.jiraDB.InsertSyncHistory(ctx, user.JiraUserID, "success", len(jiraResponse.Issues), jiraResponse.Total, "", startedAt)
 }
 
-func (s *jiraSync) processJiraIssue(ctx context.Context, issue domainRP.JiraIssue) error {
+func (s *jiraSync) processJiraIssue(ctx context.Context, issue repository.JiraIssueEntity) error {
 	existingIssue, err := s.jiraDB.FetchJiraIssue(ctx, issue.Key)
 	if err != nil {
 		s.log.Println("FetchJiraIssue fail with err:", err)
@@ -135,7 +135,7 @@ func (s *jiraSync) processJiraIssue(ctx context.Context, issue domainRP.JiraIssu
 	return nil
 }
 
-func (s *jiraSync) updateJiraIssueHistories(ctx context.Context, issue domainRP.JiraIssue) error {
+func (s *jiraSync) updateJiraIssueHistories(ctx context.Context, issue repository.JiraIssueEntity) error {
 
 	histories, err := s.jiraAtlassian.FetchJiraIssueHistories(ctx, issue.Key, s.cfg)
 	if err != nil {
@@ -150,7 +150,7 @@ func (s *jiraSync) updateJiraIssueHistories(ctx context.Context, issue domainRP.
 	return nil
 }
 
-func (s *jiraSync) GetJiraUserList(ctx context.Context) (user *[]domainRP.User, err error) {
+func (s *jiraSync) GetJiraUserList(ctx context.Context) (user *[]repository.UserEntity, err error) {
 	users, err := s.jiraDB.FetchUserList(ctx)
 	if err != nil {
 		log.Println("FetchUserList fail with err:", err)

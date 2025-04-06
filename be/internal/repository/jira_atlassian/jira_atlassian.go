@@ -12,7 +12,7 @@ import (
 
 func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (jiraResp repository.JiraIssueResponse, err error) {
 
-	jiraData := domain.JiraIssueResponse{}
+	jiraData := repository.JiraIssueResponse{}
 	startAt := 0
 
 	jql := fmt.Sprintf(`
@@ -55,7 +55,7 @@ func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, 
 
 func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistory, error) {
 
-	jiraIssueHistories := domain.JiraIssueHistory{}
+	jiraIssueHistories := repository.JiraIssueHistory{}
 
 	client := &http.Client{}
 	reqURL := fmt.Sprintf("%s%s/%s?expand=changelog", r.cfg.GetString("jira.baseurl"), r.cfg.GetString("jira.detailurl"), jiraIssueKey)

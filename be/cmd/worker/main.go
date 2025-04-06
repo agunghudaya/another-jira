@@ -9,7 +9,7 @@ import (
 	"be/internal/infrastructure/db"
 	"be/internal/infrastructure/logger"
 	jiraAtlassianRp "be/internal/repository/jira_atlassian"
-	jiraDBRp "be/internal/repository/jira_db"
+	jiraDBRp "be/internal/repository/jira_db/impl"
 
 	ucJiraSync "be/internal/usecase/jira_sync"
 )

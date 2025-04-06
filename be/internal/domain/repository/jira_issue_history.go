@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type JiraIssueHistory struct {
+type JiraIssueHistoryEntity struct {
 	ID       int
 	IssueID  int
 	Field    string
