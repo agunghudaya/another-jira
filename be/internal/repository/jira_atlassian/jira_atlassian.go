@@ -1,7 +1,7 @@
 package jira_atlassian
 
 import (
-	domain "be/internal/domain/repository"
+	repository "be/internal/domain/repository"
 	"be/internal/infrastructure/config"
 	"context"
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 	"net/url"
 )
 
-func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (jiraResp domain.JiraIssueResponse, err error) {
+func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (jiraResp repository.JiraIssueResponse, err error) {
 
 	jiraData := domain.JiraIssueResponse{}
 	startAt := 0
@@ -53,7 +53,7 @@ func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, 
 	return jiraResp, nil
 }
 
-func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (domain.JiraIssueHistory, error) {
+func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistory, error) {
 
 	jiraIssueHistories := domain.JiraIssueHistory{}
 

@@ -11,11 +11,9 @@ type JiraIssue struct {
 	Key                  string
 	AssigneeEmail        string
 	AssigneeName         string
-	Created              time.Time
 	CreatorEmail         string
 	CreatorName          string
 	Description          string
-	DueDate              *time.Time
 	IssueTypeDescription string
 	IssueTypeName        string
 	PriorityName         string
@@ -25,14 +23,18 @@ type JiraIssue struct {
 	ReporterEmail        string
 	ReporterName         string
 	Self                 string
-	StatusCategoryChange *time.Time
 	StatusCategoryKey    string
 	StatusCategoryName   string
 	StatusDescription    string
 	StatusName           string
 	Summary              string
-	Updated              time.Time
 	URL                  string
+
+	// time tracking
+	Created              time.Time
+	Updated              time.Time
+	DueDate              *time.Time
+	StatusCategoryChange *time.Time
 
 	//time estimation
 	AggregateTimeEstimate         float64

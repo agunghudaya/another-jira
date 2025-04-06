@@ -1,7 +1,7 @@
 package jira_db
 
 import (
-	domain "be/internal/domain/repository"
+	repository "be/internal/domain/repository"
 	"be/internal/infrastructure/config"
 	"context"
 	"database/sql"
@@ -11,16 +11,17 @@ import (
 )
 
 type JiraDBRepository interface {
-	FetchJiraIssue(ctx context.Context, issueKey string) (issue domain.JiraIssue, err error)
-	FetchPendingSync(ctx context.Context, jiraID string) ([]domain.SyncHistory, error)
-	FetchUserList(ctx context.Context) ([]domain.User, error)
+	FetchJiraIssue(ctx context.Context, issueKey string) (issue repository.JiraIssue, err error)
+	FetchPendingSync(ctx context.Context, jiraID string) ([]repository.SyncHistory, error)
+	FetchUserList(ctx context.Context) ([]repository.User, error)
 
-	InsertJiraIssue(ctx context.Context, issue domain.JiraIssue) error
+	InsertJiraIssue(ctx context.Context, issue repository.JiraIssue) error
+	InsertJiraIssueHistory(ctx context.Context, history repository.JiraIssueHistory) (int, error)
 	InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error
 
 	MarkSyncAsCompleted(ctx context.Context, syncID int, success bool, recordsSynced int, errMessage *string) error
 
-	UpdateJiraIssue(ctx context.Context, issue domain.JiraIssue) error
+	UpdateJiraIssue(ctx context.Context, issue repository.JiraIssue) error
 }
 
 type jiraDBRepository struct {

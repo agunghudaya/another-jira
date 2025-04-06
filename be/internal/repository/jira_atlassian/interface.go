@@ -1,8 +1,9 @@
 package jira_atlassian
 
 import (
-	domain "be/internal/domain/repository"
+	"be/internal/domain/repository"
 	"be/internal/infrastructure/config"
+	repository "be/internal/repository/jira_db/entity"
 	"context"
 	"database/sql"
 
@@ -10,8 +11,8 @@ import (
 )
 
 type JiraAtlassianRepository interface {
-	FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (domain.JiraIssueResponse, error)
-	FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (domain.JiraIssueHistory, error)
+	FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (repository.JiraIssueResponse, error)
+	FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistory, error)
 }
 
 type jiraAtlassianRepository struct {
