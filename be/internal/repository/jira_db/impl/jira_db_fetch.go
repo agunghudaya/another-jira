@@ -8,7 +8,7 @@ import (
 
 func (r *jiraDBRepository) FetchJiraIssue(ctx context.Context, issueKey string) (repository.JiraIssueEntity, error) {
 	query := `
-        SELECT id, "key", "self", url, assignee_email, assignee_name, reporter_email, reporter_name, 
+        SELECT "key", "self", url, assignee_email, assignee_name, reporter_email, reporter_name, 
                creator_email, creator_name, summary, description, created, updated, duedate, 
                statuscategorychangedate, issue_type_name, issue_type_desc, project_id, project_key, 
                project_name, priority_name, status_name, status_desc, status_category_name, 
@@ -22,7 +22,7 @@ func (r *jiraDBRepository) FetchJiraIssue(ctx context.Context, issueKey string) 
 
 	var issue repository.JiraIssueEntity
 	err := r.db.QueryRowContext(ctx, query, issueKey).Scan(
-		&issue.ID, &issue.Key, &issue.Self, &issue.URL,
+		&issue.Key, &issue.Self, &issue.URL,
 		&issue.AssigneeEmail, &issue.AssigneeName,
 		&issue.ReporterEmail, &issue.ReporterName,
 		&issue.CreatorEmail, &issue.CreatorName,
@@ -37,11 +37,8 @@ func (r *jiraDBRepository) FetchJiraIssue(ctx context.Context, issueKey string) 
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Handle case where no rows are returned
-			r.log.Warnf("No Jira issue found for key: %s", issueKey)
 			return repository.JiraIssueEntity{}, nil
 		}
-		// Handle other errors
 		r.log.Errorf("Error fetching Jira issue for key %s: %v", issueKey, err)
 		return repository.JiraIssueEntity{}, err
 	}

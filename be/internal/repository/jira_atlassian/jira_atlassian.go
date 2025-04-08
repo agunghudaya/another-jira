@@ -60,8 +60,6 @@ func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, j
 	client := &http.Client{}
 	reqURL := fmt.Sprintf("%s%s/%s?expand=changelog", r.cfg.GetString("jira.baseurl"), r.cfg.GetString("jira.detailurl"), jiraIssueKey)
 
-	r.log.Printf("url: %s", reqURL)
-
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
 		return jiraIssueHistories, err

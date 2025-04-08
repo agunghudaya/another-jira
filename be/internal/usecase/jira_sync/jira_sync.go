@@ -58,7 +58,6 @@ func (s *jiraSync) fetchSyncHistories(ctx context.Context, jiraUserID string) ([
 		s.log.Errorln("FetchPendingSync fail with err:", err)
 		return nil, err
 	}
-	s.log.Printf("we have %d sync histories", len(syncHistories))
 	return syncHistories, nil
 }
 
@@ -67,11 +66,6 @@ func (s *jiraSync) analyzeSyncHistories(syncHistories []repository.SyncHistory) 
 	doSync := len(syncHistories) == 0
 
 	for _, sync := range syncHistories {
-		s.log.Infof("\nlast sync\t:%s\ntotal\t:%d\ngot\t\t:%d",
-			sync.CreatedAt.Format("02-01-2006 15:04:05"),
-			sync.TotalExpectedRecords,
-			sync.RecordsSynced)
-
 		if sync.TotalExpectedRecords > totalExpectedRecords {
 			totalExpectedRecords = sync.TotalExpectedRecords
 		}
@@ -115,7 +109,7 @@ func (s *jiraSync) processJiraIssue(ctx context.Context, issue repository.JiraIs
 			}
 
 		} else {
-			s.log.Infof("Skipping issue %s as it already exists", issue.Key)
+			s.log.Infof("Skipping issue %s as it already exists and got no update since %s", issue.Key, issue.Updated.Format("02-01-2006 15:04:05"))
 			return nil
 		}
 	}
@@ -125,11 +119,9 @@ func (s *jiraSync) processJiraIssue(ctx context.Context, issue repository.JiraIs
 		return err
 	}
 
-	if issue.Key == "BIT-20959" {
-		if err := s.updateJiraIssueHistories(ctx, issue); err != nil {
-			s.log.Infoln("updateJiraIssueHistories fail with err:", err)
-			return err
-		}
+	if err := s.updateJiraIssueHistories(ctx, issue); err != nil {
+		s.log.Infoln("updateJiraIssueHistories fail with err:", err)
+		return err
 	}
 
 	return nil
@@ -143,8 +135,14 @@ func (s *jiraSync) updateJiraIssueHistories(ctx context.Context, issue repositor
 		return err
 	}
 
-	for _, history := range histories.Changelog.Histories {
-		s.log.Infof("history\t:%s\ncreated\t:%s\nfield\t:%s\nfrom\t:%s\nto\t:%s\n", histories.ID, history.Created, history.Items[0].Field, history.Items[0].FromString, history.Items[0].ToString)
+	historyEntities := repository.MapToJiraIssueHistoryEntities(histories)
+
+	for _, historyEntity := range historyEntities {
+		err := s.jiraDB.InsertJiraIssueHistory(ctx, historyEntity)
+		if err != nil {
+			log.Println("InsertJiraIssueHistory fail with err:", err)
+			return err
+		}
 	}
 
 	return nil

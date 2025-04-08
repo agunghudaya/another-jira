@@ -3,6 +3,7 @@ package jira_db_impl
 import (
 	repository "be/internal/domain/repository"
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -34,10 +35,9 @@ func (r *jiraDBRepository) InsertJiraIssue(ctx context.Context, issue repository
         $19, $20, $21, 
         $22, $23, 
         $24, $25, $26, $27, $28, $29
-    ) RETURNING id;`
+    )`
 
-	var id int
-	err := r.db.QueryRowContext(ctx, query,
+	row := r.db.QueryRowContext(ctx, query,
 		issue.Key, issue.Self, issue.URL,
 		issue.AssigneeEmail, issue.AssigneeName,
 		issue.ReporterEmail, issue.ReporterName,
@@ -50,44 +50,41 @@ func (r *jiraDBRepository) InsertJiraIssue(ctx context.Context, issue repository
 		issue.StatusName, issue.StatusDescription, issue.StatusCategoryName, issue.StatusCategoryKey,
 		issue.AggregateTimeEstimate, issue.AggregateTimeOriginalEstimate,
 		issue.TimeEstimate, issue.TimeOriginalEstimate,
-	).Scan(&id)
+	)
 
-	if err != nil {
+	// Trigger query execution and handle any potential error
+	if err := row.Scan(); err != nil && err != sql.ErrNoRows {
 		return err
 	}
-
-	r.log.Infof("Inserted Jira issue with ID: %d\n", id)
 	return nil
 }
 
-func (r *jiraDBRepository) InsertJiraIssueHistory(ctx context.Context, history repository.JiraIssueHistoryEntity) (int, error) {
+func (r *jiraDBRepository) InsertJiraIssueHistory(ctx context.Context, history repository.JiraIssueHistoryEntity) error {
 	query := `
 		INSERT INTO jira_issue_histories (
-            issue_id, 
+            key, 
             field, 
             old_value, 
             new_value, 
             created
         ) VALUES (
             $1, $2, $3, $4, $5
-        ) RETURNING id; `
+        ); `
 
-	var id int
-	err := r.db.QueryRowContext(ctx, query,
-		history.IssueID,
+	row := r.db.QueryRowContext(ctx, query,
+		history.IssueKey,
 		history.Field,
 		history.Oldvalue,
 		history.NewValue,
 		history.Created,
-	).Scan(&id)
+	)
 
-	if err != nil {
-		r.log.Errorf("Error inserting Jira issue history: %v", err)
-		return 0, err
+	// Trigger query execution and handle any potential error
+	if err := row.Scan(); err != nil && err != sql.ErrNoRows {
+		return err
 	}
 
-	r.log.Infof("Inserted Jira issue history with ID: %d", id)
-	return id, nil
+	return nil
 }
 
 func (r *jiraDBRepository) InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error {

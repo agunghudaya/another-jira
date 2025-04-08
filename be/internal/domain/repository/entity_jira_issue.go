@@ -2,12 +2,10 @@ package repository
 
 import (
 	"be/internal/utils"
-	"log"
 	"time"
 )
 
 type JiraIssueEntity struct {
-	ID                   int
 	Key                  string
 	AssigneeEmail        string
 	AssigneeName         string
@@ -47,6 +45,7 @@ func MapJiraResponseToJiraIssues(jiraResponse JiraIssueResponse) []JiraIssueEnti
 	var issues []JiraIssueEntity
 
 	format := "2006-01-02T15:04:05.000-0700"
+	formatShort := "2006-01-02"
 
 	for _, issue := range jiraResponse.Issues {
 
@@ -60,7 +59,7 @@ func MapJiraResponseToJiraIssues(jiraResponse JiraIssueResponse) []JiraIssueEnti
 			updated = time.Time{} // Handle parsing error
 		}
 
-		dueDate, err := utils.ParseStringToTime(issue.IssueFields.DueDate, format)
+		dueDate, err := utils.ParseStringToTime(issue.IssueFields.DueDate, formatShort)
 		if err != nil {
 			dueDate = time.Time{} // Handle parsing error
 		}
@@ -70,36 +69,34 @@ func MapJiraResponseToJiraIssues(jiraResponse JiraIssueResponse) []JiraIssueEnti
 			statusCategoryChanged = time.Time{} // Handle parsing error
 		}
 
-		if issue.Key == "BIT-21492" {
-			log.Printf("%d - %d - %d - %d",
-				issue.IssueFields.TimeOriginalEstimate,
-				issue.IssueFields.AggregateTimeOriginalEstimate,
-				issue.IssueFields.TimeEstimate,
-				issue.IssueFields.AggregateTimeEstimate)
-		}
-
 		issues = append(issues, JiraIssueEntity{
-			Key:                           issue.Key,
-			Self:                          issue.Self,
+			AggregateTimeEstimate:         utils.SafeFloat64(issue.IssueFields.AggregateTimeEstimate, 0),
+			AggregateTimeOriginalEstimate: utils.SafeFloat64(issue.IssueFields.AggregateTimeOriginalEstimate, 0),
 			AssigneeEmail:                 issue.IssueFields.Assignee.Email,
 			AssigneeName:                  issue.IssueFields.Assignee.DisplayName,
-			ReporterEmail:                 issue.IssueFields.Reporter.Email,
-			ReporterName:                  issue.IssueFields.Reporter.DisplayName,
+			Created:                       created,
 			CreatorEmail:                  issue.IssueFields.Reporter.Email,
 			CreatorName:                   issue.IssueFields.Reporter.DisplayName,
 			Description:                   issue.IssueFields.Description,
-			Created:                       created,
-			Updated:                       updated,
 			DueDate:                       &dueDate,
-			StatusCategoryChange:          &statusCategoryChanged,
-			TimeOriginalEstimate:          utils.SafeFloat64(issue.IssueFields.TimeOriginalEstimate, 0),
-			AggregateTimeOriginalEstimate: utils.SafeFloat64(issue.IssueFields.AggregateTimeOriginalEstimate, 0),
-			TimeEstimate:                  utils.SafeFloat64(issue.IssueFields.TimeEstimate, 0),
-			AggregateTimeEstimate:         utils.SafeFloat64(issue.IssueFields.AggregateTimeEstimate, 0),
-			IssueTypeName:                 issue.IssueFields.IssueType.Name,
 			IssueTypeDescription:          issue.IssueFields.IssueType.Description,
+			IssueTypeName:                 issue.IssueFields.IssueType.Name,
+			Key:                           issue.Key,
+			PriorityName:                  issue.IssueFields.Priority.Name,
 			ProjectKey:                    issue.IssueFields.Project.Key,
 			ProjectName:                   issue.IssueFields.Project.Name,
+			ReporterEmail:                 issue.IssueFields.Reporter.Email,
+			ReporterName:                  issue.IssueFields.Reporter.DisplayName,
+			Self:                          issue.Self,
+			StatusCategoryChange:          &statusCategoryChanged,
+			StatusCategoryKey:             issue.IssueFields.Status.StatusCategory.Key,
+			StatusCategoryName:            issue.IssueFields.Status.StatusCategory.Name,
+			StatusDescription:             issue.IssueFields.Status.Description,
+			StatusName:                    issue.IssueFields.Status.Name,
+			Summary:                       issue.IssueFields.Summary,
+			TimeEstimate:                  utils.SafeFloat64(issue.IssueFields.TimeEstimate, 0),
+			TimeOriginalEstimate:          utils.SafeFloat64(issue.IssueFields.TimeOriginalEstimate, 0),
+			Updated:                       updated,
 		})
 	}
 

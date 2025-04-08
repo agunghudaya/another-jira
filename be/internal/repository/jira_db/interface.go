@@ -12,7 +12,7 @@ type JiraDBRepository interface {
 	FetchUserList(ctx context.Context) ([]repository.UserEntity, error)
 
 	InsertJiraIssue(ctx context.Context, issue repository.JiraIssueEntity) error
-	InsertJiraIssueHistory(ctx context.Context, history repository.JiraIssueHistoryEntity) (int, error)
+	InsertJiraIssueHistory(ctx context.Context, history repository.JiraIssueHistoryEntity) error
 	InsertSyncHistory(ctx context.Context, jiraID string, status string, recordsSynced int, totalExpected int, errMessage string, startedAt time.Time) error
 
 	UpdateJiraIssue(ctx context.Context, issue repository.JiraIssueEntity) error

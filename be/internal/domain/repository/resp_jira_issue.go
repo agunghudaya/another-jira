@@ -16,30 +16,33 @@ type TaskResponse struct {
 }
 
 type IssueFieldsResponse struct {
-	Assignee                  JiraUser      `json:"assignee"`
-	Components                []interface{} `json:"components"`
-	Created                   string        `json:"created"`
-	Customfield10019          string        `json:"customfield_10019"`
-	Customfield10032          []interface{} `json:"customfield_10032"`
-	Customfield10045          string        `json:"customfield_10045"`
-	Customfield10046          float64       `json:"customfield_10046"`
-	Customfield10157          []interface{} `json:"customfield_10157"`
-	Customfield10164          CustomField   `json:"customfield_10164"`
-	Description               string        `json:"description"`
-	DueDate                   string        `json:"duedate"`
-	IssueLinks                []interface{} `json:"issuelinks"`
-	IssueType                 IssueType     `json:"issuetype"`
-	Labels                    []string      `json:"labels"`
-	LastViewed                interface{}   `json:"lastViewed"`
-	Progress                  Progress      `json:"progress"`
-	Project                   Project       `json:"project"`
-	Reporter                  JiraUser      `json:"reporter"`
-	Resolution                interface{}   `json:"resolution"`
-	ResolutionDate            interface{}   `json:"resolutiondate"`
-	Subtasks                  []interface{} `json:"subtasks"`
-	Updated                   string        `json:"updated"`
-	Watches                   Watches       `json:"watches"`
-	StatusCategoryChangedDate string        `json:"statuscategorychangedate"`
+	Assignee                  JiraUser                  `json:"assignee"`
+	Components                []interface{}             `json:"components"`
+	Created                   string                    `json:"created"`
+	Customfield10019          string                    `json:"customfield_10019"`
+	Customfield10032          []interface{}             `json:"customfield_10032"`
+	Customfield10045          string                    `json:"customfield_10045"`
+	Customfield10046          float64                   `json:"customfield_10046"`
+	Customfield10157          []interface{}             `json:"customfield_10157"`
+	Customfield10164          CustomField               `json:"customfield_10164"`
+	Description               string                    `json:"description"`
+	DueDate                   string                    `json:"duedate"`
+	IssueLinks                []interface{}             `json:"issuelinks"`
+	IssueType                 IssueType                 `json:"issuetype"`
+	Labels                    []string                  `json:"labels"`
+	LastViewed                interface{}               `json:"lastViewed"`
+	Progress                  Progress                  `json:"progress"`
+	Project                   Project                   `json:"project"`
+	Reporter                  JiraUser                  `json:"reporter"`
+	Priority                  JiraIssuePriorityResponse `json:"priority"`
+	Resolution                interface{}               `json:"resolution"`
+	ResolutionDate            interface{}               `json:"resolutiondate"`
+	Subtasks                  []interface{}             `json:"subtasks"`
+	Updated                   string                    `json:"updated"`
+	Summary                   string                    `json:"summary"`
+	Watches                   Watches                   `json:"watches"`
+	Status                    JiraIssueStatusResponse   `json:"status"`
+	StatusCategoryChangedDate string                    `json:"statuscategorychangedate"`
 
 	//time estimation
 	AggregateTimeEstimate         interface{} `json:"aggregatetimeestimate"`
@@ -54,6 +57,28 @@ type JiraIssueHistoryResponse struct {
 	Self      string    `json:"self"`
 	Key       string    `json:"key"`
 	Changelog Changelog `json:"changelog"`
+}
+
+type JiraIssueStatusResponse struct {
+	Self           string                          `json:"self"`
+	Description    string                          `json:"description"`
+	IconURL        string                          `json:"iconUrl"`
+	Name           string                          `json:"name"`
+	ID             string                          `json:"id"`
+	StatusCategory JiraIssueStatusCategoryResponse `json:"statusCategory"`
+}
+
+type JiraIssueStatusCategoryResponse struct {
+	Self      string `json:"self"`
+	ID        int    `json:"id"`
+	Key       string `json:"key"`
+	ColorName string `json:"colorName"`
+	Name      string `json:"name"`
+}
+
+type JiraIssuePriorityResponse struct {
+	Self string `json:"self"`
+	Name string `json:"name"`
 }
 
 type Changelog struct {
