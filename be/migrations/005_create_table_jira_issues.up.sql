@@ -1,6 +1,5 @@
 CREATE TABLE jira_issues (
-    id SERIAL PRIMARY KEY, -- Unique identifier for the issue
-    key VARCHAR(50) NOT NULL UNIQUE, -- Jira issue key (e.g., PROJ-123)
+    key VARCHAR(50) PRIMARY KEY, -- Jira issue key (e.g., PROJ-123)
     self TEXT NOT NULL, -- Jira API self URL
     url TEXT NOT NULL, -- Jira web URL
 

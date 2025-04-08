@@ -1,6 +1,6 @@
 package repository
 
-type User struct {
+type UserEntity struct {
 	ID         int
 	Username   string
 	JiraUserID string

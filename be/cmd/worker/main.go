@@ -8,7 +8,9 @@ import (
 	"be/internal/infrastructure/config"
 	"be/internal/infrastructure/db"
 	"be/internal/infrastructure/logger"
-	"be/internal/repository"
+	jiraAtlassianRp "be/internal/repository/jira_atlassian"
+	jiraDBRp "be/internal/repository/jira_db/impl"
+
 	ucJiraSync "be/internal/usecase/jira_sync"
 )
 
@@ -33,8 +35,10 @@ func main() {
 	defer db.Close()
 
 	// Initialize dependencies
-	syncRepo := repository.NewSyncRepository(cfg, log, db)
-	jiraSync := ucJiraSync.NewJiraSyncUsecase(cfg, log, syncRepo)
+	jiraDBRepository := jiraDBRp.NewJiraDBRepository(cfg, log, db)
+	jiraAtlassianRepository := jiraAtlassianRp.NewJiraAtlassianRepository(cfg, log, db)
+
+	jiraSync := ucJiraSync.NewJiraSyncUsecase(cfg, log, jiraDBRepository, jiraAtlassianRepository)
 
 	c := cron.NewWorker(log, jiraSync)
 
