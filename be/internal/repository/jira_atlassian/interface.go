@@ -11,7 +11,7 @@ import (
 
 type JiraAtlassianRepository interface {
 	FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (repository.JiraIssueResponse, error)
-	FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistory, error)
+	FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistoryResponse, error)
 }
 
 type jiraAtlassianRepository struct {

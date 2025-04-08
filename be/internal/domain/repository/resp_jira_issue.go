@@ -1,30 +1,21 @@
 package repository
 
 type JiraIssueResponse struct {
-	Expand     string  `json:"expand"`
-	StartAt    int     `json:"startAt"`
-	MaxResults int     `json:"maxResults"`
-	Total      int     `json:"total"`
-	Issues     []Issue `json:"issues"`
+	Expand     string         `json:"expand"`
+	StartAt    int            `json:"startAt"`
+	MaxResults int            `json:"maxResults"`
+	Total      int            `json:"total"`
+	Issues     []TaskResponse `json:"issues"`
+}
+type TaskResponse struct {
+	Expand      string              `json:"expand"`
+	ID          string              `json:"id"`
+	Self        string              `json:"self"`
+	Key         string              `json:"key"`
+	IssueFields IssueFieldsResponse `json:"fields"`
 }
 
-type JiraIssueHistory struct {
-	Expand    string    `json:"expand"`
-	ID        string    `json:"id"`
-	Self      string    `json:"self"`
-	Key       string    `json:"key"`
-	Changelog Changelog `json:"changelog"`
-}
-
-type Issue struct {
-	Expand      string      `json:"expand"`
-	ID          string      `json:"id"`
-	Self        string      `json:"self"`
-	Key         string      `json:"key"`
-	IssueFields IssueFields `json:"fields"`
-}
-
-type IssueFields struct {
+type IssueFieldsResponse struct {
 	Assignee                  JiraUser      `json:"assignee"`
 	Components                []interface{} `json:"components"`
 	Created                   string        `json:"created"`
@@ -55,6 +46,14 @@ type IssueFields struct {
 	AggregateTimeOriginalEstimate interface{} `json:"aggregatetimeoriginalestimate"`
 	TimeEstimate                  interface{} `json:"timeestimate"`
 	TimeOriginalEstimate          interface{} `json:"timeoriginalestimate"`
+}
+
+type JiraIssueHistoryResponse struct {
+	Expand    string    `json:"expand"`
+	ID        string    `json:"id"`
+	Self      string    `json:"self"`
+	Key       string    `json:"key"`
+	Changelog Changelog `json:"changelog"`
 }
 
 type Changelog struct {

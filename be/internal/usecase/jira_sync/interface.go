@@ -20,16 +20,16 @@ type JiraSync interface {
 
 type jiraSync struct {
 	cfg           *config.Config
-	log           *logrus.Logger
-	jiraDB        jiraDBRp.JiraDBRepository
 	jiraAtlassian jiraAtlassianRp.JiraAtlassianRepository
+	jiraDB        jiraDBRp.JiraDBRepository
+	log           *logrus.Logger
 }
 
 func NewJiraSyncUsecase(cfg *config.Config, log *logrus.Logger, jiraDB jiraDBRp.JiraDBRepository, jiraAtlassian jiraAtlassianRp.JiraAtlassianRepository) JiraSync {
 	return &jiraSync{
 		cfg:           cfg,
-		log:           log,
-		jiraDB:        jiraDB,
 		jiraAtlassian: jiraAtlassian,
+		jiraDB:        jiraDB,
+		log:           log,
 	}
 }

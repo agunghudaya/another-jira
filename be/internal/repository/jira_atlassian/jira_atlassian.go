@@ -53,9 +53,9 @@ func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, 
 	return jiraResp, nil
 }
 
-func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistory, error) {
+func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistoryResponse, error) {
 
-	jiraIssueHistories := repository.JiraIssueHistory{}
+	jiraIssueHistories := repository.JiraIssueHistoryResponse{}
 
 	client := &http.Client{}
 	reqURL := fmt.Sprintf("%s%s/%s?expand=changelog", r.cfg.GetString("jira.baseurl"), r.cfg.GetString("jira.detailurl"), jiraIssueKey)
