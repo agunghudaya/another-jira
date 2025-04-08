@@ -9,7 +9,7 @@ import (
 	routes "be/internal/routes"
 
 	rpJiraDB "be/internal/repository/jira_db/impl"
-	ucUser "be/internal/usecase/user"
+	ucUser "be/internal/usecase/uc_user"
 
 	"context"
 	"os"
