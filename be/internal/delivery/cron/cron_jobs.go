@@ -1,7 +1,7 @@
 package cron
 
 import (
-	ucJiraSync "be/internal/usecase/jira_sync"
+	ucJiraSync "be/internal/usecase/uc_jira_sync"
 	"context"
 
 	cron "github.com/robfig/cron/v3"

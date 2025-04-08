@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	ucUser "be/internal/usecase/user"
+	ucUser "be/internal/usecase/uc_user"
 )
 
 // UserHandler struct

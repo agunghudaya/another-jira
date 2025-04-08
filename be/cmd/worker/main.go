@@ -10,7 +10,7 @@ import (
 	"be/internal/infrastructure/logger"
 	rpJiraAtlassian "be/internal/repository/jira_atlassian"
 	rpJiraDB "be/internal/repository/jira_db/impl"
-	ucJiraSync "be/internal/usecase/jira_sync"
+	ucJiraSync "be/internal/usecase/uc_jira_sync"
 )
 
 func main() {
