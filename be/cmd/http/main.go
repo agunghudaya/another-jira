@@ -6,8 +6,9 @@ import (
 	db "be/internal/infrastructure/db"
 	server "be/internal/infrastructure/http_server"
 	logger "be/internal/infrastructure/logger"
-	rpJiraDB "be/internal/repository/jira_db/impl"
 	routes "be/internal/routes"
+
+	rpJiraDB "be/internal/repository/jira_db/impl"
 	ucUser "be/internal/usecase/user"
 
 	"context"

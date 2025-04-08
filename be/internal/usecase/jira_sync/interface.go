@@ -1,5 +1,4 @@
-// internal/usecase/sync_service.go
-package jira_sync
+package ucjirasync
 
 import (
 	repository "be/internal/domain/repository"

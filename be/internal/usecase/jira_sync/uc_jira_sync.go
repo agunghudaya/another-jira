@@ -1,4 +1,4 @@
-package jira_sync
+package ucjirasync
 
 import (
 	"context"
