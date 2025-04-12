@@ -5,19 +5,19 @@ import (
 	jiradb "be/internal/repository/jira_db"
 
 	"be/internal/infrastructure/config"
+	"be/internal/infrastructure/db"
 	"be/internal/infrastructure/logger"
 
 	"context"
-	"database/sql"
 )
 
-func NewJiraDBRepository(cfg *config.Config, log logger.Logger, db *sql.DB) jiradb.JiraDBRepository {
+func NewJiraDBRepository(cfg *config.Config, log logger.Logger, db db.DB) jiradb.JiraDBRepository {
 	return &jiraDBRepository{cfg: cfg, db: db, log: log}
 }
 
 type jiraDBRepository struct {
 	cfg *config.Config
-	db  *sql.DB
+	db  db.DB
 	log logger.Logger
 }
 

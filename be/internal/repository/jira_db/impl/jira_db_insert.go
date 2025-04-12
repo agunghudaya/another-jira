@@ -107,7 +107,7 @@ func (r *jiraDBRepository) InsertSyncHistory(ctx context.Context, jiraID string,
 	`
 
 	var id int
-	err := r.db.QueryRow(query, jiraID, syncDate, startedAt, now, status, errMessage, recordsSynced, totalExpected).Scan(&id)
+	err := r.db.QueryRowContext(ctx, query, jiraID, syncDate, startedAt, now, status, errMessage, recordsSynced, totalExpected).Scan(&id)
 	if err != nil {
 		return err
 	}

@@ -3,9 +3,9 @@ package jira_atlassian
 import (
 	repository "be/internal/domain/repository"
 	"be/internal/infrastructure/config"
+	"be/internal/infrastructure/db"
 	"be/internal/infrastructure/logger"
 	"context"
-	"database/sql"
 )
 
 type JiraAtlassianRepository interface {
@@ -15,10 +15,10 @@ type JiraAtlassianRepository interface {
 
 type jiraAtlassianRepository struct {
 	cfg *config.Config
-	db  *sql.DB
+	db  db.DB
 	log logger.Logger
 }
 
-func NewJiraAtlassianRepository(cfg *config.Config, log logger.Logger, db *sql.DB) JiraAtlassianRepository {
+func NewJiraAtlassianRepository(cfg *config.Config, log logger.Logger, db db.DB) JiraAtlassianRepository {
 	return &jiraAtlassianRepository{cfg: cfg, db: db, log: log}
 }
