@@ -1,24 +1,24 @@
-package jira_db_impl
+package jiradbimpl
 
 import (
 	repository "be/internal/domain/repository"
-	"be/internal/infrastructure/config"
+	jiradb "be/internal/repository/jira_db"
 
-	"be/internal/repository/jira_db"
+	"be/internal/infrastructure/config"
+	"be/internal/infrastructure/logger"
+
 	"context"
 	"database/sql"
-
-	"github.com/sirupsen/logrus"
 )
 
-func NewJiraDBRepository(cfg *config.Config, log *logrus.Logger, db *sql.DB) jira_db.JiraDBRepository {
+func NewJiraDBRepository(cfg *config.Config, log logger.Logger, db *sql.DB) jiradb.JiraDBRepository {
 	return &jiraDBRepository{cfg: cfg, db: db, log: log}
 }
 
 type jiraDBRepository struct {
 	cfg *config.Config
 	db  *sql.DB
-	log *logrus.Logger
+	log logger.Logger
 }
 
 func (r *jiraDBRepository) UpdateJiraIssue(ctx context.Context, issue repository.JiraIssueEntity) error {
