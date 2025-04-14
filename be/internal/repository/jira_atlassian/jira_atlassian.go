@@ -10,7 +10,7 @@ import (
 	"net/url"
 )
 
-func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (jiraResp repository.JiraIssueResponse, err error) {
+func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg config.Config) (jiraResp repository.JiraIssueResponse, err error) {
 
 	jiraData := repository.JiraIssueResponse{}
 	startAt := 0
@@ -53,7 +53,7 @@ func (r *jiraAtlassianRepository) FetchJiraTasksWithFilter(ctx context.Context, 
 	return jiraResp, nil
 }
 
-func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistoryResponse, error) {
+func (r *jiraAtlassianRepository) FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg config.Config) (repository.JiraIssueHistoryResponse, error) {
 
 	jiraIssueHistories := repository.JiraIssueHistoryResponse{}
 

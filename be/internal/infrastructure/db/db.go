@@ -9,7 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func InitDB(cfg *config.Config) (DB, error) {
+func InitDB(cfg config.Config) (DB, error) {
 	dbHost := cfg.GetString("database.host")
 	dbPort := cfg.GetInt("database.port")
 	dbUser := cfg.GetString("database.user")

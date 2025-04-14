@@ -11,12 +11,12 @@ import (
 	"context"
 )
 
-func NewJiraDBRepository(cfg *config.Config, log logger.Logger, db db.DB) jiradb.JiraDBRepository {
+func NewJiraDBRepository(cfg config.Config, log logger.Logger, db db.DB) jiradb.JiraDBRepository {
 	return &jiraDBRepository{cfg: cfg, db: db, log: log}
 }
 
 type jiraDBRepository struct {
-	cfg *config.Config
+	cfg config.Config
 	db  db.DB
 	log logger.Logger
 }

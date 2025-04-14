@@ -9,16 +9,16 @@ import (
 )
 
 type JiraAtlassianRepository interface {
-	FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg *config.Config) (repository.JiraIssueResponse, error)
-	FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg *config.Config) (repository.JiraIssueHistoryResponse, error)
+	FetchJiraTasksWithFilter(ctx context.Context, jiraUserID string, cfg config.Config) (repository.JiraIssueResponse, error)
+	FetchJiraIssueHistories(ctx context.Context, jiraIssueKey string, cfg config.Config) (repository.JiraIssueHistoryResponse, error)
 }
 
 type jiraAtlassianRepository struct {
-	cfg *config.Config
+	cfg config.Config
 	db  db.DB
 	log logger.Logger
 }
 
-func NewJiraAtlassianRepository(cfg *config.Config, log logger.Logger, db db.DB) JiraAtlassianRepository {
+func NewJiraAtlassianRepository(cfg config.Config, log logger.Logger, db db.DB) JiraAtlassianRepository {
 	return &jiraAtlassianRepository{cfg: cfg, db: db, log: log}
 }

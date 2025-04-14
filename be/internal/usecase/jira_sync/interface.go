@@ -18,13 +18,13 @@ type JiraSync interface {
 }
 
 type jiraSync struct {
-	cfg           *config.Config
+	cfg           config.Config
 	jiraAtlassian jiraAtlassianRp.JiraAtlassianRepository
 	jiraDB        jiraDBRp.JiraDBRepository
 	log           logger.Logger
 }
 
-func NewJiraSyncUsecase(cfg *config.Config, log logger.Logger, jiraDB jiraDBRp.JiraDBRepository, jiraAtlassian jiraAtlassianRp.JiraAtlassianRepository) JiraSync {
+func NewJiraSyncUsecase(cfg config.Config, log logger.Logger, jiraDB jiraDBRp.JiraDBRepository, jiraAtlassian jiraAtlassianRp.JiraAtlassianRepository) JiraSync {
 	return &jiraSync{
 		cfg:           cfg,
 		jiraAtlassian: jiraAtlassian,
