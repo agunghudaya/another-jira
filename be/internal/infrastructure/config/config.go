@@ -7,12 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Config struct {
-	v *viper.Viper
-}
-
-// NewConfig initializes and returns a new Viper configuration instance
-func NewConfig() (*Config, error) {
+func NewConfig() (*ViperConfig, error) {
 	v := viper.New()
 
 	// Set defaults
@@ -38,20 +33,15 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("failed to read config.json: %w", err)
 	}
 
-	// Print all configuration values for debugging
-	// log.Println("Loaded Configuration:")
-	// for _, key := range v.AllKeys() {
-	// 	log.Printf("%s: %v", key, v.Get(key))
-	// }
-
-	return &Config{v: v}, nil
+	return &ViperConfig{v: v}, nil
 }
 
-// GetViper exposes the Viper instance
-func (c *Config) GetViper() *viper.Viper {
-	return c.v
+// GetString retrieves a string value from the configuration
+func (c *ViperConfig) GetString(key string) string {
+	return c.v.GetString(key)
 }
 
-// Helper functions to access specific config values
-func (c *Config) GetString(key string) string { return c.v.GetString(key) }
-func (c *Config) GetInt(key string) int       { return c.v.GetInt(key) }
+// GetInt retrieves an integer value from the configuration
+func (c *ViperConfig) GetInt(key string) int {
+	return c.v.GetInt(key)
+}

@@ -1,4 +1,4 @@
-package jira_db_impl
+package jiradbimpl
 
 import (
 	repository "be/internal/domain/repository"
@@ -90,7 +90,7 @@ func (r *jiraDBRepository) FetchUserList(ctx context.Context) ([]repository.User
 
 	select {
 	case <-ctx.Done():
-		r.log.Warn("FetchUserList operation was canceled!")
+		r.log.Infof("FetchUserList operation was canceled!")
 		return nil, ctx.Err()
 	default:
 		// Continue processing

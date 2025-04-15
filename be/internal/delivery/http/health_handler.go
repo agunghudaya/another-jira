@@ -1,21 +1,21 @@
 package delivery
 
 import (
+	"be/internal/infrastructure/logger"
 	"context"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 // HealthHandler struct
 type HealthHandler struct {
-	logger *logrus.Logger
+	logger logger.Logger
 }
 
 // NewHealthHandler registers routes
-func NewHealthHandler(r *gin.Engine, logger *logrus.Logger) *HealthHandler {
+func NewHealthHandler(r *gin.Engine, logger logger.Logger) *HealthHandler {
 	return &HealthHandler{logger: logger}
 }
 

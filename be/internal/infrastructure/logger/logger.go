@@ -7,40 +7,29 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// InitLogger initializes the global logger
-func InitLogger() *logrus.Logger {
-	logger := logrus.New()
+func InitLogger() Logger {
+	base := logrus.New()
 
-	// Set output to stdout
-	logger.SetOutput(os.Stdout)
-
-	// Set log format (JSON or Text)
-	logger.SetFormatter(&logrus.TextFormatter{ // Enable colored output
+	base.SetOutput(os.Stdout)
+	base.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
-		ForceColors:   true, // Ensure colors are enabled
+		ForceColors:   true,
 	})
+	base.SetLevel(logrus.InfoLevel)
 
-	// Set log level (INFO by default)
-	logger.SetLevel(logrus.InfoLevel)
-
-	return logger
+	return &LogrusAdapter{logger: base}
 }
 
-// LoggerMiddleware is a Gin middleware for structured logging
-func LoggerMiddleware() gin.HandlerFunc {
-	logger := InitLogger()
+func LoggerMiddleware(logger Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Before request
 		path := c.Request.URL.Path
 		method := c.Request.Method
 		clientIP := c.ClientIP()
 
-		// Process request
 		c.Next()
 
-		// After request
 		statusCode := c.Writer.Status()
-		logger.WithFields(logrus.Fields{
+		logger.WithFields(map[string]any{
 			"method": method,
 			"path":   path,
 			"status": statusCode,
