@@ -1,4 +1,4 @@
-package jira_db
+package jiradb
 
 import (
 	repository "be/internal/domain/repository"

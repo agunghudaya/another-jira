@@ -5,20 +5,21 @@ import (
 	"net/http"
 	"time"
 
+	"be/internal/infrastructure/logger"
+
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 
 	ucUser "be/internal/usecase/uc_user"
 )
 
 // UserHandler struct
 type UserHandler struct {
-	logger *logrus.Logger
+	logger logger.Logger
 	ucUser ucUser.UsecaseUser
 }
 
 // NewUserHandler registers routes
-func NewUserHandler(r *gin.Engine, logger *logrus.Logger, ucUser ucUser.UsecaseUser) *UserHandler {
+func NewUserHandler(r *gin.Engine, logger logger.Logger, ucUser ucUser.UsecaseUser) *UserHandler {
 	return &UserHandler{logger: logger, ucUser: ucUser}
 }
 

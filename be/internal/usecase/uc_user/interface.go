@@ -3,10 +3,10 @@ package ucuser
 import (
 	repository "be/internal/domain/repository"
 	"be/internal/infrastructure/config"
+	"be/internal/infrastructure/logger"
+
 	jiraDBRp "be/internal/repository/jira_db"
 	"context"
-
-	"github.com/sirupsen/logrus"
 )
 
 type UsecaseUser interface {
@@ -14,12 +14,12 @@ type UsecaseUser interface {
 }
 
 type usecaseUser struct {
-	cfg    *config.Config
+	cfg    config.Config
 	jiraDB jiraDBRp.JiraDBRepository
-	log    *logrus.Logger
+	log    logger.Logger
 }
 
-func NewUsecaseUser(cfg *config.Config, log *logrus.Logger, jiraDB jiraDBRp.JiraDBRepository) UsecaseUser {
+func NewUsecaseUser(cfg config.Config, log logger.Logger, jiraDB jiraDBRp.JiraDBRepository) UsecaseUser {
 	return &usecaseUser{
 		cfg:    cfg,
 		jiraDB: jiraDB,

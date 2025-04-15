@@ -1,13 +1,13 @@
-package ucjirasync
+package jirasync
 
 import (
-	repository "be/internal/domain/repository"
 	"be/internal/infrastructure/config"
-	jiraAtlassianRp "be/internal/repository/jira_atlassian"
-	jiraDBRp "be/internal/repository/jira_db"
+	"be/internal/infrastructure/logger"
 	"context"
 
-	"github.com/sirupsen/logrus"
+	repository "be/internal/domain/repository"
+	jiraAtlassianRp "be/internal/repository/jira_atlassian"
+	jiraDBRp "be/internal/repository/jira_db"
 )
 
 type JiraSync interface {
@@ -18,13 +18,13 @@ type JiraSync interface {
 }
 
 type jiraSync struct {
-	cfg           *config.Config
+	cfg           config.Config
 	jiraAtlassian jiraAtlassianRp.JiraAtlassianRepository
 	jiraDB        jiraDBRp.JiraDBRepository
-	log           *logrus.Logger
+	log           logger.Logger
 }
 
-func NewJiraSyncUsecase(cfg *config.Config, log *logrus.Logger, jiraDB jiraDBRp.JiraDBRepository, jiraAtlassian jiraAtlassianRp.JiraAtlassianRepository) JiraSync {
+func NewJiraSyncUsecase(cfg config.Config, log logger.Logger, jiraDB jiraDBRp.JiraDBRepository, jiraAtlassian jiraAtlassianRp.JiraAtlassianRepository) JiraSync {
 	return &jiraSync{
 		cfg:           cfg,
 		jiraAtlassian: jiraAtlassian,

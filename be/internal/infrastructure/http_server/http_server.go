@@ -9,6 +9,7 @@ import (
 // InitServer initializes the HTTP server with custom logging
 func InitServer() *gin.Engine {
 	r := gin.New()
-	r.Use(logger.LoggerMiddleware(), gin.Recovery()) // Use custom logger middleware
+	log := logger.InitLogger()
+	r.Use(logger.LoggerMiddleware(log), gin.Recovery())
 	return r
 }
