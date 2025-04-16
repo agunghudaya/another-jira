@@ -2,7 +2,7 @@ package cron
 
 import (
 	"be/internal/infrastructure/logger"
-	ucJiraSync "be/internal/usecase/jira_sync"
+	jirasync "be/internal/usecase/uc_jira_sync"
 	"context"
 
 	cron "github.com/robfig/cron/v3"
@@ -10,12 +10,12 @@ import (
 
 type Worker struct {
 	cron       *cron.Cron
-	jiraSyncUC ucJiraSync.JiraSync
+	jiraSyncUC jirasync.JiraSync
 	log        logger.Logger
 }
 
 // NewWorker initializes a new cron job worker
-func NewWorker(log logger.Logger, jiraSyncUC ucJiraSync.JiraSync) *Worker {
+func NewWorker(log logger.Logger, jiraSyncUC jirasync.JiraSync) *Worker {
 	return &Worker{
 		log:        log,
 		jiraSyncUC: jiraSyncUC,

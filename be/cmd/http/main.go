@@ -7,6 +7,10 @@ import (
 	server "be/internal/infrastructure/http_server"
 	logger "be/internal/infrastructure/logger"
 	routes "be/internal/routes"
+
+	rpJiraDB "be/internal/repository/jira_db/impl"
+	ucUser "be/internal/usecase/uc_user"
+
 	"context"
 	"os"
 	"os/signal"
@@ -44,8 +48,8 @@ func main() {
 	}()
 
 	// Initialize dependencies
-	//syncRepo := repository.NewSyncRepository(cfg, db)
-	//_ := usecase.NewJiraSyncUsecase(cfg, db, syncRepo)
+	rpJiraDB := rpJiraDB.NewJiraDBRepository(cfg, log, db)
+	ucUser := ucUser.NewUsecaseUser(cfg, log, rpJiraDB)
 
 	// Create Gin Router
 	r := server.InitServer()
@@ -53,6 +57,7 @@ func main() {
 	// Initialize handlers
 	hr := &routes.HandlerRegistry{
 		HealthHandler: delivery.NewHealthHandler(r, log),
+		UserHandler:   delivery.NewUserHandler(r, log, ucUser),
 	}
 
 	routes.RegisterRoutes(r, hr)

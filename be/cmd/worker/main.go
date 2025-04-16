@@ -8,10 +8,9 @@ import (
 	"be/internal/infrastructure/config"
 	"be/internal/infrastructure/db"
 	"be/internal/infrastructure/logger"
-	jiraAtlassianRp "be/internal/repository/jira_atlassian"
-	jiraDBRp "be/internal/repository/jira_db/impl"
-
-	ucJiraSync "be/internal/usecase/jira_sync"
+	rpJiraAtlassian "be/internal/repository/jira_atlassian"
+	rpJiraDB "be/internal/repository/jira_db/impl"
+	ucJiraSync "be/internal/usecase/uc_jira_sync"
 )
 
 func main() {
@@ -35,12 +34,12 @@ func main() {
 	defer db.Close()
 
 	// Initialize dependencies
-	jiraDBRepository := jiraDBRp.NewJiraDBRepository(cfg, log, db)
-	jiraAtlassianRepository := jiraAtlassianRp.NewJiraAtlassianRepository(cfg, log, db)
+	rpJiraDB := rpJiraDB.NewJiraDBRepository(cfg, log, db)
+	rpJiraAtlassian := rpJiraAtlassian.NewJiraAtlassianRepository(cfg, log, db)
 
-	jiraSync := ucJiraSync.NewJiraSyncUsecase(cfg, log, jiraDBRepository, jiraAtlassianRepository)
+	ucJiraSync := ucJiraSync.NewJiraSyncUsecase(cfg, log, rpJiraDB, rpJiraAtlassian)
 
-	c := cron.NewWorker(log, jiraSync)
+	c := cron.NewWorker(log, ucJiraSync)
 
 	log.Info("Starting Cron Jobs...")
 	c.Start(ctx)
