@@ -10,7 +10,8 @@ import (
 )
 
 type UsecaseUser interface {
-	GetAllJiraUsers(ctx context.Context) ([]repository.UserEntity, error)
+	GetAllUsers(ctx context.Context) ([]repository.UserEntity, error)
+	GetUserByID(ctx context.Context, jiraID string) (repository.UserEntity, error)
 }
 
 type usecaseUser struct {

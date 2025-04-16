@@ -20,8 +20,8 @@ func RegisterRoutes(r *gin.Engine, hr *HandlerRegistry) {
 
 		userRoutes := api.Group("/users")
 		{
-			//userRoutes.GET("/:id", hr.UserHandler.GetUser)
-			userRoutes.GET("/list", hr.UserHandler.GetUsers)
+			userRoutes.GET("/:id", hr.UserHandler.GetUserByID)
+			userRoutes.GET("/list", hr.UserHandler.GetAllUsers)
 
 		}
 

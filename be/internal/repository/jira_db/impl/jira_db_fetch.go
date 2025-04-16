@@ -4,6 +4,7 @@ import (
 	repository "be/internal/domain/repository"
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 func (r *jiraDBRepository) FetchJiraIssue(ctx context.Context, issueKey string) (repository.JiraIssueEntity, error) {
@@ -121,4 +122,27 @@ func (r *jiraDBRepository) FetchUserList(ctx context.Context) ([]repository.User
 	}
 
 	return users, nil // Return slice of users
+}
+
+func (r *jiraDBRepository) FetchUserByID(ctx context.Context, jiraID string) (repository.UserEntity, error) {
+	select {
+	case <-ctx.Done():
+		r.log.Infof("FetchUserByID operation was canceled!")
+		return repository.UserEntity{}, ctx.Err()
+	default:
+		// Continue processing
+	}
+
+	query := `SELECT ID, username, jira_user_id, status FROM users u WHERE id = $1 AND status = 'active';`
+
+	var user repository.UserEntity
+	err := r.db.QueryRowContext(ctx, query, jiraID).Scan(&user.ID, &user.Username, &user.JiraUserID, &user.Status)
+	if err != nil || err == sql.ErrNoRows {
+		if err == sql.ErrNoRows {
+			return repository.UserEntity{}, fmt.Errorf("error fetching user by ID %s", jiraID)
+		}
+		return repository.UserEntity{}, err
+	}
+
+	return user, nil
 }
