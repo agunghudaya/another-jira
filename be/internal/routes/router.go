@@ -25,6 +25,12 @@ func RegisterRoutes(r *gin.Engine, hr *HandlerRegistry) {
 
 		}
 
+		userIssueRoutes := api.Group("/user/issues")
+		{
+			userIssueRoutes.GET("/:id", hr.UserHandler.GetAssignedIssuesByUserID)
+
+		}
+
 		// orderRoutes := api.Group("/orders")
 		// {
 		// 	orderRoutes.GET("/:id", hr.OrderHandler.GetOrder)

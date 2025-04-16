@@ -5,4 +5,5 @@ type UserEntity struct {
 	Username   string
 	JiraUserID string
 	Status     string
+	Email      string
 }

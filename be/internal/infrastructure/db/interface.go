@@ -9,7 +9,7 @@ type DB interface {
 	Close() error
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 	Ping() error
-	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
 	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
 }
 
@@ -33,8 +33,8 @@ func (s *SQLDB) ExecContext(ctx context.Context, query string, args ...interface
 }
 
 // Query executes a query that returns rows.
-func (s *SQLDB) Query(query string, args ...interface{}) (*sql.Rows, error) {
-	return s.db.Query(query, args...)
+func (s *SQLDB) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+	return s.db.QueryContext(ctx, query, args...)
 }
 
 // QueryRow executes a query that is expected to return at most one row.

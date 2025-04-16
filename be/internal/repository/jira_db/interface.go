@@ -8,9 +8,10 @@ import (
 
 type JiraDBRepository interface {
 	FetchJiraIssue(ctx context.Context, issueKey string) (issue repository.JiraIssueEntity, err error)
+	FetchJiraAssignedIssuesByEmail(ctx context.Context, jiraUserID string) (issues []repository.JiraIssueEntity, err error)
 	FetchPendingSync(ctx context.Context, jiraID string) ([]repository.SyncHistory, error)
-	FetchUserList(ctx context.Context) ([]repository.UserEntity, error)
 	FetchUserByID(ctx context.Context, userID string) (repository.UserEntity, error)
+	FetchUserList(ctx context.Context) ([]repository.UserEntity, error)
 
 	InsertJiraIssue(ctx context.Context, issue repository.JiraIssueEntity) error
 	InsertJiraIssueHistory(ctx context.Context, history repository.JiraIssueHistoryEntity) error
