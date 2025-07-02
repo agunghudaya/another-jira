@@ -1,70 +1,164 @@
-# Getting Started with Create React App
+# 📊 Another Jira Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern React-based frontend application for the Another Jira project management system.
 
-## Available Scripts
+## 🏗️ Project Structure
 
-In the project directory, you can run:
+```
+fe/
+├── public/              # Static files
+├── src/                # Source code
+│   ├── components/     # Reusable components
+│   ├── pages/         # Page components
+│   ├── hooks/         # Custom React hooks
+│   ├── services/      # API services
+│   ├── store/         # Redux store
+│   ├── utils/         # Utility functions
+│   ├── styles/        # Global styles
+│   ├── App.js         # Root component
+│   └── index.js       # Entry point
+├── package.json       # Dependencies
+└── Dockerfile         # Docker configuration
+```
 
-### `npm start`
+## 🚀 Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Modern UI**: Clean and intuitive user interface
+- **Responsive Design**: Works on all devices
+- **Real-time Updates**: Live task updates
+- **Drag and Drop**: Intuitive task management
+- **Advanced Filtering**: Powerful search and filter capabilities
+- **Dark Mode**: Support for light and dark themes
+- **Offline Support**: Progressive Web App features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ⚙️ Tech Stack
 
-### `npm test`
+- **Framework**: React 18
+- **State Management**: Redux Toolkit
+- **UI Library**: Material-UI
+- **Routing**: React Router
+- **HTTP Client**: Axios
+- **Form Handling**: React Hook Form
+- **Testing**: Jest + React Testing Library
+- **Build Tool**: Create React App
+- **Container**: Docker
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠 Setup and Installation
 
-### `npm run build`
+### Prerequisites
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Node.js 16+
+- npm or yarn
+- Docker (optional)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Local Development
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Clone and Setup**
+   ```bash
+   git clone https://github.com/your-org/another-jira.git
+   cd another-jira/fe
+   npm install
+   ```
 
-### `npm run eject`
+2. **Environment Configuration**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. **Start Development Server**
+   ```bash
+   npm start
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Docker Deployment
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+# Build the image
+docker build -t another-jira-frontend .
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Run the container
+docker run -p 3000:3000 another-jira-frontend
+```
 
-## Learn More
+## 📚 Available Scripts
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- `npm start` - Runs the app in development mode
+- `npm test` - Launches the test runner
+- `npm run build` - Builds the app for production
+- `npm run lint` - Runs ESLint
+- `npm run format` - Formats code with Prettier
+- `npm run analyze` - Analyzes bundle size
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🧪 Testing
 
-### Code Splitting
+### Unit Tests
+```bash
+npm test
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Component Tests
+```bash
+npm run test:components
+```
 
-### Analyzing the Bundle Size
+### E2E Tests
+```bash
+npm run test:e2e
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🎨 UI Components
 
-### Making a Progressive Web App
+The application uses a combination of custom components and Material-UI:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Layout Components**
+  - AppBar
+  - Sidebar
+  - Dashboard
+  - Project Board
 
-### Advanced Configuration
+- **Task Components**
+  - Task Card
+  - Task List
+  - Task Form
+  - Task Details
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- **Common Components**
+  - Button
+  - Input
+  - Select
+  - Modal
+  - Loading
+  - Error Boundary
 
-### Deployment
+## 🔐 Security
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- CSRF protection
+- XSS prevention
+- Secure HTTP headers
+- Input sanitization
+- Token-based authentication
+- Secure cookie handling
 
-### `npm run build` fails to minify
+## 📦 Dependencies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Key dependencies:
+- `@mui/material` - Material-UI components
+- `@reduxjs/toolkit` - Redux state management
+- `react-router-dom` - Routing
+- `axios` - HTTP client
+- `react-hook-form` - Form handling
+- `date-fns` - Date manipulation
+- `react-query` - Data fetching
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.

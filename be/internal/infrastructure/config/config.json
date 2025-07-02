@@ -6,7 +6,7 @@
     "url": "http://localhost:3000"
   },
   "database": {
-    "host": "postgres",
+    "host": "jira-db",
     "port": 5432,
     "user": "youruser",
     "password": "yourpassword",
