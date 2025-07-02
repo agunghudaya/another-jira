@@ -1,99 +1,142 @@
-# 📊 Jira Sync and Reporting Tool
+# 📊 Another Jira
 
-A web application for synchronizing Jira tasks and histories with a custom database to enable advanced reporting, real-time task monitoring, and performance analysis.
+A modern project management tool inspired by Jira, built with Go and React. This application provides a comprehensive solution for project tracking, task management, and team collaboration.
 
----
+## 🏗️ Project Structure
 
-## 🚀 Overview
+```
+another-jira/
+├── be/                 # Backend service (Go)
+├── fe/                 # Frontend application (React)
+├── migrations/         # Database migrations
+├── vault-data/        # Secure secret management
+├── docker-compose.yml # Docker orchestration
+└── README.md          # Project documentation
+```
 
-This project consists of two main components:
+## 🚀 Key Features
 
-- **Backend (Go):** Handles synchronization between Jira and a custom database. It's designed for scalability and performance.
-- **Frontend (React):** Provides a clean, intuitive UI for data visualization, reporting, and task tracking.
-
----
-
-## 🔑 Key Features
-
-- **🔁 Jira Synchronization:** Automatically sync Jira issues, histories, and metadata to a custom database.
-- **📈 Custom Reporting:** Build dashboards and reports tailored to your team's metrics and goals.
-- **🕵️‍♂️ Task Monitoring:** Track task statuses and project progress in real-time.
-- **📊 Team Performance Calibration:** Use data-driven insights to evaluate team output and identify improvement areas.
-
----
+- **Project Management**: Create and manage projects with customizable workflows
+- **Task Tracking**: Track tasks, bugs, and stories with detailed information
+- **Team Collaboration**: Assign tasks, add comments, and track progress
+- **Real-time Updates**: Get instant notifications on task changes
+- **Advanced Reporting**: Generate custom reports and analytics
+- **User Management**: Role-based access control and team management
 
 ## ⚙️ Tech Stack
 
-**Backend**
-- Language: Go
-- Key Libraries: `context`, `logrus`, `database/sql`, `net/http`
-- Role: Data synchronization, logging, API interaction
+### Backend (Go)
+- Clean Architecture for maintainable and scalable code
+- PostgreSQL for data persistence
+- RESTful API design
+- JWT authentication
+- Docker containerization
 
-**Frontend**
-- Framework: React (Create React App)
-- Role: User interface for viewing and interacting with reports
+### Frontend (React)
+- Modern React with functional components
+- Material-UI for consistent design
+- Redux for state management
+- Responsive design for all devices
+- Docker containerization
 
-**Database**
-- Custom schema designed for Jira task tracking and historical data analysis
-
----
+### Infrastructure
+- Docker Compose for orchestration
+- PostgreSQL database
+- Vault for secret management
+- Automated database migrations
 
 ## 🛠 Getting Started
 
-To set up the project locally:
+### Prerequisites
+- Docker and Docker Compose
+- Node.js 16+ (for local frontend development)
+- Go 1.18+ (for local backend development)
+- PostgreSQL (if running without Docker)
 
-1. **Clone the repository**
+### Quick Start with Docker
+```bash
+# Clone the repository
+git clone https://github.com/your-org/another-jira.git
+cd another-jira
+
+# Start all services
+docker-compose up -d
+
+# Access the application
+Frontend: http://localhost:3000
+Backend API: http://localhost:8080
+```
+
+### Local Development
+1. **Backend Setup**
    ```bash
-   git clone https://github.com/your-org/jira-sync-tool.git
-   cd jira-sync-tool
+   cd be
+   go mod tidy
+   go run cmd/main.go
    ```
 
-2. **Install dependencies**
-    
-    Backend
-    ```bash
-    cd backend
-    go mod tidy
-    ```
-    
-    Frotend
-    ```bash
-    cd frontend
-    npm install
-    ```
-3. **Configure the environment**
-   - Set up your database connection and Jira API credentials (via .env or config files).
+2. **Frontend Setup**
+   ```bash
+   cd fe
+   npm install
+   npm start
+   ```
 
-4. **Run the backend service**
-    ```bash
-    go run main.go
-    ```
+3. **Database Setup**
+   ```bash
+   # Using Docker
+   docker-compose up -d postgres
+   
+   # Or install PostgreSQL locally
+   # Then run migrations
+   cd migrations
+   ./migrate.sh
+   ```
 
-5. **Start the frontend app**
-    ```bash
-    npm start
-    ```
+## 📚 Documentation
 
+- [Backend Documentation](be/README.md)
+- [Frontend Documentation](fe/README.md)
+- [API Documentation](be/docs/api.md)
+- [Database Schema](migrations/README.md)
 
-## 🧭 Roadmap
+## 🔐 Security
 
-Planned enhancements:
+- JWT-based authentication
+- Role-based access control
+- Secure password hashing
+- Vault integration for secrets
+- HTTPS support
+- Input validation and sanitization
 
-- [ ] Advanced reporting & analytics features
-- [ ] Third-party integrations (e.g., Slack, Confluence)
-- [ ] Authentication & role-based access control
-- [ ] Deployment scripts and Docker support
+## 🧪 Testing
+
+### Backend Tests
+```bash
+cd be
+go test ./...
+```
+
+### Frontend Tests
+```bash
+cd fe
+npm test
+```
 
 ## 🤝 Contributing
 
-We welcome contributions from the community!
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-- 🐛 Report bugs or suggest features via [issues](https://github.com/your-org/jira-sync-tool/issues)
-- 📥 Submit pull requests for improvements
-- 🙌 Please follow our coding guidelines and submit tests where applicable
+## 📝 License
 
----
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📄 License
+## 🙏 Acknowledgments
 
-This project is licensed under the [MIT License](LICENSE).
+- Inspired by Atlassian Jira
+- Built with modern best practices
+- Community-driven development

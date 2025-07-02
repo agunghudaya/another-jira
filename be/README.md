@@ -1,123 +1,158 @@
 # 📊 Another Jira Backend
 
-This is the backend service for the **Another Jira** project, a tool designed to synchronize Jira tasks, histories, and other data with a custom database. It enables advanced reporting, real-time task monitoring, and performance analysis.
-
----
-
-## 🚀 Features
-
-- **Jira Synchronization**: Sync Jira issues, histories, and user data.
-- **PostgreSQL Integration**: Store Jira data in a relational database for advanced querying.
-- **RESTful APIs**: Expose endpoints for interacting with Jira data.
-- **Clean Architecture**: Ensures scalability, maintainability, and testability.
-- **Logging**: Comprehensive logging using Logrus for better observability.
-- **Extensibility**: Modular design for easy addition of new features.
-
----
+A robust backend service built with Go, implementing clean architecture principles for a modern project management system.
 
 ## 🏗️ Architecture
 
-The backend is built using **clean architecture** principles, ensuring a clear separation of concerns:
-
-1. **Domain Layer**:
-   - Core business logic, entities, and repository interfaces.
-   - Independent of frameworks or external libraries.
-
-2. **Usecase Layer**:
-   - Application-specific workflows and orchestration.
-   - Depends only on the domain layer.
-
-3. **Infrastructure Layer**:
-   - Handles external dependencies like databases, logging, and APIs.
-   - Implements repository interfaces and other abstractions.
-
----
-
-## 📂 Folder Structure
+The backend follows clean architecture principles with clear separation of concerns:
 
 ```
-another-jira/
-├── be/
-│   ├── internal/
-│   │   ├── domain/          # Core business logic and entities
-│   │   ├── usecase/         # Application workflows
-│   │   ├── infrastructure/  # External dependencies (e.g., database, logging)
-│   │   └── repository/      # Repository implementations
-│   ├── cmd/                 # Application entry points
-│   └── config/              # Configuration files
-└── ...
+be/
+├── cmd/                    # Application entry points
+│   └── main.go            # Main application entry
+├── internal/              # Private application code
+│   ├── domain/           # Core business logic and entities
+│   │   ├── entity/       # Business entities
+│   │   └── repository/   # Repository interfaces
+│   ├── usecase/          # Application business rules
+│   ├── delivery/         # Delivery mechanisms (HTTP, gRPC)
+│   ├── repository/       # Repository implementations
+│   ├── infrastructure/   # External services integration
+│   └── middleware/       # Cross-cutting concerns
+└── migrations/           # Database migrations
 ```
 
----
+## 🚀 Features
 
-## ⚙️ Setup and Installation
+- **RESTful API**: Well-documented HTTP endpoints
+- **Authentication**: JWT-based authentication
+- **Authorization**: Role-based access control
+- **Database**: PostgreSQL with migrations
+- **Logging**: Structured logging with Logrus
+- **Error Handling**: Consistent error responses
+- **Validation**: Request validation
+- **Documentation**: Swagger/OpenAPI support
+
+## ⚙️ Tech Stack
+
+- **Language**: Go 1.18+
+- **Framework**: Standard library + custom middleware
+- **Database**: PostgreSQL
+- **ORM**: Custom SQL with prepared statements
+- **Authentication**: JWT
+- **Logging**: Logrus
+- **Testing**: Go testing package
+- **Container**: Docker
+
+## 🛠 Setup and Installation
 
 ### Prerequisites
 
 - Go 1.18+
-- PostgreSQL
-- Docker (optional, for running the database locally)
+- PostgreSQL 13+
+- Docker (optional)
+- Make (optional, for using Makefile)
 
-### Steps
+### Local Development
 
-1. Clone the repository:
+1. **Clone and Setup**
    ```bash
-   git clone https://github.com/your-repo/another-jira.git
+   git clone https://github.com/your-org/another-jira.git
    cd another-jira/be
-   ```
-
-2. Install dependencies:
-   ```bash
    go mod tidy
    ```
 
-3. Configure the environment:
-   - Copy the `.env.example` file to `.env` and update the values as needed.
+2. **Environment Configuration**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-4. Run the application:
+3. **Database Setup**
+   ```bash
+   # Using Docker
+   docker-compose up -d postgres
+   
+   # Or connect to your PostgreSQL instance
+   # Then run migrations
+   ./scripts/migrate.sh
+   ```
+
+4. **Run the Application**
    ```bash
    go run cmd/main.go
    ```
 
-5. (Optional) Run the database using Docker:
-   ```bash
-   docker-compose up -d
-   ```
+### Docker Deployment
 
----
+```bash
+# Build the image
+docker build -t another-jira-backend .
 
-## 📖 API Documentation
+# Run the container
+docker run -p 8080:8080 another-jira-backend
+```
 
-The backend exposes the following APIs:
+## 📚 API Documentation
 
-- **GET /users**: Fetch all Jira users.
-- **POST /sync**: Trigger a Jira synchronization process.
-- **GET /issues**: Retrieve Jira issues from the database.
+The API follows RESTful principles and is documented using Swagger/OpenAPI.
 
-For detailed API documentation, refer to the [API Docs](docs/api.md).
+### Key Endpoints
 
----
+- `POST /api/v1/auth/login` - User authentication
+- `GET /api/v1/projects` - List projects
+- `POST /api/v1/projects` - Create project
+- `GET /api/v1/issues` - List issues
+- `POST /api/v1/issues` - Create issue
+- `PUT /api/v1/issues/:id` - Update issue
+- `GET /api/v1/users` - List users
+
+For detailed API documentation, visit `/swagger/index.html` when running the server.
 
 ## 🧪 Testing
 
-Run unit tests using the following command:
-
+### Unit Tests
 ```bash
 go test ./...
 ```
 
----
+### Integration Tests
+```bash
+go test -tags=integration ./...
+```
 
-## 🤝 Contribution Guidelines
+### Test Coverage
+```bash
+go test -cover ./...
+```
 
-We welcome contributions! To contribute:
+## 🔐 Security
 
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Submit a pull request with a detailed description of your changes.
+- JWT-based authentication
+- Password hashing with bcrypt
+- Input validation and sanitization
+- CORS configuration
+- Rate limiting
+- SQL injection prevention
+- XSS protection
 
----
+## 📦 Dependencies
 
-## 📜 License
+Key dependencies:
+- `github.com/gin-gonic/gin` - HTTP framework
+- `github.com/golang-jwt/jwt` - JWT implementation
+- `github.com/lib/pq` - PostgreSQL driver
+- `github.com/sirupsen/logrus` - Logging
+- `github.com/spf13/viper` - Configuration
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.

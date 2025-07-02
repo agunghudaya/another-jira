@@ -56,7 +56,7 @@ func main() {
 
 	// Initialize handlers
 	hr := &routes.HandlerRegistry{
-		HealthHandler: delivery.NewHealthHandler(r, log),
+		HealthHandler: delivery.NewHealthHandler(r, log, db),
 		UserHandler:   delivery.NewUserHandler(r, log, ucUser),
 	}
 
